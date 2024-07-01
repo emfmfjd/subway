@@ -4,21 +4,58 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}기본 타이틀{% endblock %}</title>
-</head>
+    <style>
+        @font-face {
+            font-family: 'BMJUA';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body {
+            font-family: 'BMJUA', sans-serif;
+            align-items: center;
+            justify-content: center;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgb(255, 226, 236);
+        }
+        .header img {
+            width: 20px;
+        }
+        .header span {
+            margin: 0 10px;
+        }
+        
+    </style>
+    <header class="header">
+        <h1><img src="{% static 'subway/루피left.png' %}" alt="루피 left" style="width: 30px;">
+        <span>당당루피즈 지하철 노선도</span>
+        <img src="{% static 'subway/루피right.png' %}" alt="루피 right" style="width: 30px;"></h1>
+    </header>
+</body>
 <body>
-    <nav>
-        <a href="{% url 'subway:1호선' %}"><img src="{% static 'subway/1.png' %}" width="50"></a>
-        <a href="{% url 'subway:2호선' %}"><img src="{% static 'subway/2.png' %}" width="50"></a>
-        <a href="{% url 'subway:3호선' %}"><img src="{% static 'subway/3.png' %}" width="50"></a>
-        <a href="{% url 'subway:4호선' %}"><img src="{% static 'subway/4.png' %}" width="50"></a>
-        <a href="{% url 'subway:5호선' %}"><img src="{% static 'subway/5.png' %}" width="50"></a>
-        <a href="{% url 'subway:6호선' %}"><img src="{% static 'subway/6.png' %}" width="50"></a>
-        <a href="{% url 'subway:7호선' %}"><img src="{% static 'subway/7.png' %}" width="50"></a>
-        <a href="{% url 'subway:8호선' %}"><img src="{% static 'subway/8.png' %}" width="50"></a>
-    </nav>
+    <div style="text-align: center;">
+        <nav style="display: inline-block;"> 
+            <a href="{% url 'subway:1호선' %}"><img src="{% static 'subway/1.png' %}" style="width: 50px; margin: 10px;"></a>
+            <a href="{% url 'subway:2호선' %}"><img src="{% static 'subway/2.png' %}" style="width: 50px; margin: 10px;"></a>
+            <a href="{% url 'subway:3호선' %}"><img src="{% static 'subway/3.png' %}" style="width: 50px; margin: 10px;"></a>
+            <a href="{% url 'subway:4호선' %}"><img src="{% static 'subway/4.png' %}" style="width: 50px; margin: 10px;"></a>
+            <a href="{% url 'subway:5호선' %}"><img src="{% static 'subway/5.png' %}" style="width: 50px; margin: 10px;"></a>
+            <a href="{% url 'subway:6호선' %}"><img src="{% static 'subway/6.png' %}" style="width: 50px; margin: 10px;"></a>
+            <a href="{% url 'subway:7호선' %}"><img src="{% static 'subway/7.png' %}" style="width: 50px; margin: 10px;"></a>
+            <a href="{% url 'subway:8호선' %}"><img src="{% static 'subway/8.png' %}" style="width: 50px; margin: 10px;"></a>
+        </nav>
+
+    </div>
     <main>
         {% block content %}
         {% endblock %}
+        <div style="float:right;">
+            <img src="{% static 'subway/zoomin.png' %}" style="width: 20px;"><br><img src="{% static 'subway/zoomout.png' %}" style="width: 20px;">
+        </div>
     </main>
 </body>
 </html>
