@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>3호선 노선도</title>
+    <title>지하철  노선도</title>
     {% load static %} 
     <link rel="stylesheet" type="text/css" href="{% static 'line3/style.css' %}">
     <style>
@@ -75,14 +75,6 @@
             img.style.transform = 'translate(-50%, -50%)';
             updateButtons(currentWidth);
         }
-        
-        // /* 최대 확대일 때 최소 축소일 때 확대, 축소 버튼 생략 */
-        // function updateButtons(currentWidth) {  
-        //     const largerButton = document.getElementById('larger-button');
-        //     const smallerButton = document.getElementById('smaller-button');
-        //     largerButton.style.display = currentWidth >= 200 ? 'none' : 'block';
-        //     smallerButton.style.display = currentWidth <= 50 ? 'none' : 'block';
-        // }
 
         document.getElementById('image-container').addEventListener('wheel', function(event) {
             event.preventDefault();
@@ -115,8 +107,8 @@
         document.addEventListener('mousemove', (e) => {
             if (isDragging){
             e.preventDefault();
-            const dx = (e.clientX - startX) * 13; // 이동 거리를 더 크게 조정
-            const dy = (e.clientY - startY) * 13; // 이동 거리를 더 크게 조정
+            const dx = (e.clientX - startX) * 50; // 이동 거리를 더 크게 조정
+            const dy = (e.clientY - startY) * 50; // 이동 거리를 더 크게 조정
             img.style.left = `${imgStartX + dx}px`;
             img.style.top = `${imgStartY + dy}px`;
             }
