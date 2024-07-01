@@ -40,7 +40,6 @@
         }
         button {
             font-size: 20px;
-            padding: 10px 20px;
             margin: 5px;
             cursor: pointer;
         }
@@ -55,6 +54,7 @@
             
         }
         .map-image { /*이미지 연결(페이지마다 다른 이미지) 클래스*/
+            display: block;
             max-width: none;
             height: auto;
             width: 120%; /* 초기 이미지 확대배율 */
@@ -63,8 +63,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            overflow: auto;
+            transform-origin: center center;
         }
+
     </style>
 </head>
 <body>
@@ -75,16 +76,16 @@
             <img src="{% static 'subway/루피right.png' %}" alt="루피 right" style="width: 30px;">
         </h1>
     </header>
-    <div style="text-align: center;">
+    <div style="text-align: center; background-color: rgb(240, 243, 247);">
         <nav> <!-- 호선 별 페이지 옮기기 -->
-            <a href="{% url 'subway:1호선' %}"><img src="{% static 'subway/1.png' %}" style="width: 50px; margin: 10px"></a>
-            <a href="{% url 'subway:2호선' %}"><img src="{% static 'subway/2.png' %}" style="width: 50px; margin: 10px"></a>
-            <a href="{% url 'subway:3호선' %}"><img src="{% static 'subway/3.png' %}" style="width: 50px; margin: 10px"></a>
-            <a href="{% url 'subway:4호선' %}"><img src="{% static 'subway/4.png' %}" style="width: 50px; margin: 10px"></a>
-            <a href="{% url 'subway:5호선' %}"><img src="{% static 'subway/5.png' %}" style="width: 50px; margin: 10px"></a>
-            <a href="{% url 'subway:6호선' %}"><img src="{% static 'subway/6.png' %}" style="width: 50px; margin: 10px"></a>
-            <a href="{% url 'subway:7호선' %}"><img src="{% static 'subway/7.png' %}" style="width: 50px; margin: 10px"></a>
-            <a href="{% url 'subway:8호선' %}"><img src="{% static 'subway/8.png' %}" style="width: 50px; margin: 10px"></a>
+                <a href="{% url 'subway:1호선' %}"><img src="{% static 'subway/1.png' %}" style="width: 50px; margin: 10px;"></a>
+                <a href="{% url 'subway:2호선' %}"><img src="{% static 'subway/2.png' %}" style="width: 50px; margin: 10px;"></a>
+                <a href="{% url 'subway:3호선' %}"><img src="{% static 'subway/3.png' %}" style="width: 50px; margin: 10px;"></a>
+                <a href="{% url 'subway:4호선' %}"><img src="{% static 'subway/4.png' %}" style="width: 50px; margin: 10px;"></a>
+                <a href="{% url 'subway:5호선' %}"><img src="{% static 'subway/5.png' %}" style="width: 50px; margin: 10px;"></a>
+                <a href="{% url 'subway:6호선' %}"><img src="{% static 'subway/6.png' %}" style="width: 50px; margin: 10px;"></a>
+                <a href="{% url 'subway:7호선' %}"><img src="{% static 'subway/7.png' %}" style="width: 50px; margin: 10px;"></a>
+                <a href="{% url 'subway:8호선' %}"><img src="{% static 'subway/8.png' %}" style="width: 50px; margin: 10px;"></a>
         </nav>
     </div>
     <main>
@@ -98,16 +99,13 @@
     <script>
         function resizeImage(action) {
             const img = document.querySelector('.map-image');
-            let currentWidth = img.style.width ? parseInt(img.style.width) : 50;
+            let currentWidth = img.style.width ? parseInt(img.style.width) : 120;
             if (action === 'larger') {
                 currentWidth = Math.min(currentWidth + 20, 200);
             } else if (action === 'smaller') {
                 currentWidth = Math.max(currentWidth - 20, 100);
             }
             img.style.width = currentWidth + '%';
-            img.style.top = '50%';
-            img.style.left = '50%';
-            img.style.transform = 'translate(-50%, -50%)';
         }
 
         document.querySelector('.image-container').addEventListener('wheel', function(event) {
