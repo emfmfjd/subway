@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}기본 타이틀{% endblock %}</title>
+</head>
+<body>
+    <nav>
+        <a href="{% url 'subway:1호선' %}"><img src="{% static 'subway/1.png' %}" width="50"></a>
+        <a href="{% url 'subway:2호선' %}"><img src="{% static 'subway/2.png' %}" width="50"></a>
+        <a href="{% url 'subway:3호선' %}"><img src="{% static 'subway/3.png' %}" width="50"></a>
+        <a href="{% url 'subway:4호선' %}"><img src="{% static 'subway/4.png' %}" width="50"></a>
+        <a href="{% url 'subway:5호선' %}"><img src="{% static 'subway/5.png' %}" width="50"></a>
+        <a href="{% url 'subway:6호선' %}"><img src="{% static 'subway/6.png' %}" width="50"></a>
+        <a href="{% url 'subway:7호선' %}"><img src="{% static 'subway/7.png' %}" width="50"></a>
+        <a href="{% url 'subway:8호선' %}"><img src="{% static 'subway/8.png' %}" width="50"></a>
+    </nav>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+</html>

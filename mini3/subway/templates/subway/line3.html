@@ -1,12 +1,8 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>3호선</title>
-</head>
-<body>
+{% block title %}3호선{% endblock %}
+
+{% block content %}
     <h1>3호선 렛츠 기릿</h1>
     <img src="{% static 'subway/line3.png' %}" width="70%">
-</body>
-</html>
+{% endblock %}
