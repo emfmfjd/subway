@@ -44,7 +44,7 @@
             margin: 5px;
             cursor: pointer;
         }
-        .image-container {
+        .image-container {/*이미지 담을 클래스*/
             width: 100%;
             height: 80vh;
             overflow: hidden;
@@ -54,10 +54,10 @@
             justify-content: center;
             
         }
-        .map-image {
+        .map-image { /*이미지 연결(페이지마다 다른 이미지) 클래스*/
             max-width: none;
             height: auto;
-            width: 130%;
+            width: 120%; /* 초기 이미지 확대배율 */
             transition: width 0.5s, transform 0.5s;
             position: absolute;
             top: 50%;
@@ -76,7 +76,7 @@
         </h1>
     </header>
     <div style="text-align: center;">
-        <nav>
+        <nav> <!-- 호선 별 페이지 옮기기 -->
             <a href="{% url 'subway:1호선' %}"><img src="{% static 'subway/1.png' %}" style="width: 50px; margin: 10px"></a>
             <a href="{% url 'subway:2호선' %}"><img src="{% static 'subway/2.png' %}" style="width: 50px; margin: 10px"></a>
             <a href="{% url 'subway:3호선' %}"><img src="{% static 'subway/3.png' %}" style="width: 50px; margin: 10px"></a>
@@ -90,7 +90,7 @@
     <main>
         {% block content %}
         {% endblock %}
-    </main>
+    </main> <!-- 확대 축소 버튼 -->
     <div class="controls" style="margin-top: 200px; margin-right: 20px;">
         <img src="{% static 'subway/zoomin.png' %}" onclick="resizeImage('larger')" style="width: 35px; margin: 5px;">
         <img src="{% static 'subway/zoomout.png' %}" onclick="resizeImage('smaller')" style="width: 35px; margin: 5px;">
@@ -102,7 +102,7 @@
             if (action === 'larger') {
                 currentWidth = Math.min(currentWidth + 20, 200);
             } else if (action === 'smaller') {
-                currentWidth = Math.max(currentWidth - 20, 120);
+                currentWidth = Math.max(currentWidth - 20, 100);
             }
             img.style.width = currentWidth + '%';
             img.style.top = '50%';
