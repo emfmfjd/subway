@@ -3,5 +3,179 @@
 {% block title %}3호선{% endblock %}
 
 {% block content %}
-    <img src="{% static 'subway/lines/line3.png' %}" width="70%">
+{% block style %}
+<style>
+    .train-maker {
+        background: url('{% static "marker/line3_down_180_default.png" %}') no-repeat center center;
+    }
+    .train-maker.down{
+        background: url('{% static "marker/line3_up_0_default.png" %}') no-repeat center center;
+    }
+</style>
+{% endblock %}
+<div class="image-container" id="image-container">
+    <img class="map-image" src="{% static 'subway/lines/line3.png' %}">
+    <div class="train-marker" id="up-train-marker"></div>
+    <div class="train-marker down" id="down-train-marker"></div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    let upTrainLocations = [
+        { x: 2975, y: 1605, station: "상행_오금" },
+        { x: 2883, y: 1665, station: "상행_경찰병원" },
+        { x: 2821, y: 1715, station: "상행_가락시장" },
+        { x: 2711, y: 1820, station: "상행_수서" },
+        { x: 2576, y: 1747, station: "상행_일원" },
+        { x: 2456, y: 1747, station: "상행_대청" },
+        { x: 2340, y: 1747, station: "상행_학여울" },
+        { x: 2250, y: 1747, station: "상행_대치" },
+        { x: 2155, y: 1747, station: "상행_도곡" },
+        { x: 2043, y: 1747, station: "상행_매봉" },
+        { x: 1942, y: 1747, station: "상행_양재" },
+        { x: 1875, y: 1722, station: "상행_남부터미널" },
+        { x: 1840, y: 1690, station: "상행_교대" },
+        { x: 1840, y: 1600, station: "상행_고속터미널" },
+        { x: 1840, y: 1548, station: "상행_잠원" },
+        { x: 1840, y: 1503, station: "상행_신사" },
+        { x: 1840, y: 1458, station: "상행_압구정" },
+        { x: 1840, y: 1365, station: "상행_옥수" },
+        { x: 1840, y: 1315, station: "상행_금호" },
+        { x: 1805, y: 1252, station: "상행_약수" },
+        { x: 1725, y: 1170, station: "상행_동대입구" },
+        { x: 1643, y: 1095, station: "상행_충무로" },
+        { x: 1545, y: 985, station: "상행_을지로3가" },
+        { x: 1545, y: 845, station: "상행_종로3가" },
+        { x: 1478, y: 768, station: "상행_안국" },
+        { x: 1423, y: 705, station: "상행_경복궁" },
+        { x: 1375, y: 660, station: "상행_독립문" },
+        { x: 1294, y: 590, station: "상행_무악재" },
+        { x: 1224, y: 590, station: "상행_홍제" },
+        { x: 1156, y: 590, station: "상행_녹번" },
+        { x: 1078, y: 590, station: "상행_불광" },
+        { x: 943, y: 590, station: "상행_연신내" },
+        { x: 898, y: 590, station: "상행_구파발" },
+        { x: 838, y: 590, station: "상행_지축" },
+        { x: 787, y: 590, station: "상행_삼송" },
+        { x: 731, y: 590, station: "상행_원흥" },
+        { x: 679, y: 590, station: "상행_원당" },
+        { x: 624, y: 590, station: "상행_화정" },
+        { x: 568, y: 590, station: "상행_대곡" },
+        { x: 502, y: 590, station: "상행_백석" },
+        { x: 427, y: 590, station: "상행_마두" },
+        { x: 350, y: 590, station: "상행_정발산" },
+        { x: 272, y: 590, station: "상행_주엽" },
+        { x: 201, y: 590, station: "상행_대화" }
+    ];
+
+    // 하행 대화 -> 오금
+    let downTrainLocations = [
+        { x: 201, y: 645, station: "하행_대화" },
+        { x: 272, y: 645, station: "하행_주엽" },
+        { x: 350, y: 645, station: "하행_정발산" },
+        { x: 427, y: 645, station: "하행_마두" },
+        { x: 502, y: 645, station: "하행_백석" },
+        { x: 568, y: 645, station: "하행_대곡" },
+        { x: 624, y: 645, station: "하행_화정" },
+        { x: 679, y: 645, station: "하행_원당" },
+        { x: 731, y: 645, station: "하행_원흥" },
+        { x: 787, y: 645, station: "하행_삼송" },
+        { x: 838, y: 645, station: "하행_지축" },
+        { x: 898, y: 645, station: "하행_구파발" },
+        { x: 943, y: 645, station: "하행_연신내" },
+        { x: 1078, y: 645, station: "하행_불광" },
+        { x: 1156, y: 645, station: "하행_녹번" },
+        { x: 1224, y: 645, station: "하행_홍제" },
+        { x: 1294, y: 645, station: "하행_무악재" },
+        { x: 1355, y: 660, station: "하행_독립문" },
+        { x: 1403, y: 705, station: "하행_경복궁" },
+        { x: 1443, y: 760, station: "하행_안국" },
+        { x: 1510, y: 835, station: "하행_종로3가" },
+        { x: 1510, y: 985, station: "하행_을지로3가" },
+        { x: 1620, y: 1085, station: "하행_충무로" },
+        { x: 1700, y: 1170, station: "하행_동대입구" },
+        { x: 1795, y: 1252, station: "하행_약수" },
+        { x: 1810, y: 1285, station: "하행_금호" },
+        { x: 1810, y: 1350, station: "하행_옥수" },
+        { x: 1810, y: 1438, station: "하행_압구정" },
+        { x: 1810, y: 1488, station: "하행_신사" },
+        { x: 1810, y: 1538, station: "하행_잠원" },
+        { x: 1810, y: 1575, station: "하행_고속터미널" },
+        { x: 1810, y: 1680, station: "하행_교대" },
+        { x: 1850, y: 1722, station: "하행_남부터미널" },
+        { x: 1942, y: 1795, station: "하행_양재" },
+        { x: 2043, y: 1795, station: "하행_매봉" },
+        { x: 2155, y: 1795, station: "하행_도곡" },
+        { x: 2250, y: 1795, station: "하행_대치" },
+        { x: 2340, y: 1795, station: "하행_학여울" },
+        { x: 2456, y: 1795, station: "하행_대청" },
+        { x: 2576, y: 1795, station: "하행_일원" },
+        { x: 2711, y: 1875, station: "하행_수서" },
+        { x: 2824, y: 1778, station: "하행_가락시장" },
+        { x: 2892, y: 1718, station: "하행_경찰병원" },
+        { x: 2975, y: 1665, station: "하행_오금" }
+    ];
+</script>
+{% endblock %}
+{% block bet-script %}
+<script>
+    // 좌표를 사용해 마커 위치를 업데이트하는 함수
+    function updateMarkerPositionWithCoords(markerId, x, y, station, direction) {
+        const trainMarker = document.getElementById(markerId);
+        const imgRect = img.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+    
+        const scaleX = imgRect.width / img.naturalWidth;
+        const scaleY = imgRect.height / img.naturalHeight;
+    
+        const markerX = imgRect.left + (x * scaleX) - containerRect.left;
+        const markerY = imgRect.top + (y * scaleY) - containerRect.top;
+    
+        // 이미지 URL
+        const imageUrlUp = '{% static "marker/line3_up_90_default.png" %}';
+        const imageUrlDown = '{% static "marker/line3_down_270_default.png" %}';
+        const imageUrlDefaultUp = '{% static "marker/line3_down_180_default.png" %}';
+        const imageUrlDefaultDown = '{% static "marker/line3_up_0_default.png" %}';
+    
+        trainMarker.style.left = `${markerX}px`;
+        trainMarker.style.top = `${markerY}px`;
+        trainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
+    
+        console.log(`Station: ${station}, Direction: ${direction}`);
+    
+        // // 역 범위에 따라 마커 이미지를 변경합니다.
+        if (direction === 'up') {
+            if (isInStationRange(station, "상행_남부터미널", "상행_독립문")) {
+                trainMarker.style.background = `url('${imageUrlUp}') no-repeat center center`;
+                console.log('상행 기차 마커 이미지가 imageUrlUp로 변경되었습니다.');
+            } else {
+                trainMarker.style.background = `url('${imageUrlDefaultUp}') no-repeat center center`;
+                console.log('상행 기차 마커 이미지가 imageUrlDefaultUp로 변경되었습니다.');
+            }
+        } else if (direction === 'down') {
+            if (isInStationRange(station, "하행_독립문", "하행_남부터미널")) {
+                trainMarker.style.background = `url('${imageUrlDown}') no-repeat center center`;
+                console.log('하행 기차 마커 이미지가 imageUrlDown로 변경되었습니다.');
+            } else {
+                trainMarker.style.background = `url('${imageUrlDefaultDown}') no-repeat center center`;
+                console.log('하행 기차 마커 이미지가 imageUrlDefaultDown로 변경되었습니다.');
+            }
+        }
+    
+        trainMarker.style.backgroundSize = 'contain';
+    }
+
+    // 기차 위치를 업데이트하는 함수
+    function updateTrainPosition() {
+        // 상행 기차 마커 업데이트
+        const upCurrentLocation = upTrainLocations[upCurrentIndex];
+        updateMarkerPositionWithCoords('up-train-marker', upCurrentLocation.x, upCurrentLocation.y, upCurrentLocation.station, 'up');
+        upCurrentIndex = (upCurrentIndex + 1) % upTrainLocations.length;
+    
+        // 하행 기차 마커 업데이트
+        const downCurrentLocation = downTrainLocations[downCurrentIndex];
+        updateMarkerPositionWithCoords('down-train-marker', downCurrentLocation.x, downCurrentLocation.y, downCurrentLocation.station, 'down');
+        downCurrentIndex = (downCurrentIndex + 1) % downTrainLocations.length;
+    }
+</script>
 {% endblock %}
