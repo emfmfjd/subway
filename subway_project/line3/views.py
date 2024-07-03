@@ -2,8 +2,8 @@ from django.shortcuts import render
 
 # Create your views here.
 
-def index(request):
-    return render(request, 'line3/index.html')
+def home_redirect(request):
+    return render(request, 'line3/line1.html')
 
 def line1(request):
     return render(request, 'line3/line1.html')
@@ -28,3 +28,4 @@ def line7(request):
 
 def line8(request):
     return render(request, 'line3/line8.html')
+
