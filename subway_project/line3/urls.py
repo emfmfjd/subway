@@ -5,7 +5,7 @@ from . import views
 app_name = 'line3'
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    #path('', views.index, name='index'),
     path('1호선/', views.line1, name='1호선'),
     path('2호선/', views.line2, name='2호선'),
     path('3호선/', views.line3, name='3호선'),

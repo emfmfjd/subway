@@ -1,9 +1,149 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}1호선{% endblock %}
+
+{% block title %}3호선 노선도{% endblock %}
 
 {% block content %}
-<div class="image-container" id="image-container">
-    <img class="map-image" src="{% static 'line3/line3.png' %}" alt="3호선 노선도">
+<div class="image-container">
+    <img class="map-image" src="{% static 'line3/line3.png' %}" alt="3호선 노선도 이미지">
+    <div class="train-marker" id="train-marker"></div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const originalCoords = { x: 201, y: 590 }; // Original coordinates on the image
+
+    function resizeImage(action) {
+        const img = document.querySelector('.map-image');
+        let currentWidth = img.style.width ? parseInt(img.style.width) : 120;
+        if (action === 'larger') {
+            currentWidth = Math.min(currentWidth + 20, 200);
+        } else if (action === 'smaller') {
+            currentWidth = Math.max(currentWidth - 20, 100);
+        }
+        img.style.width = currentWidth + '%';
+        updateMarkerPosition();
+    }
+
+    document.querySelector('.image-container').addEventListener('wheel', function(event) {
+        event.preventDefault();
+        if (event.deltaY < 0) {
+            resizeImage('larger');
+        } else {
+            resizeImage('smaller');
+        }
+    });
+
+    let isDragging = false;
+    let startX, startY, imgStartX, imgStartY;
+
+    const container = document.querySelector('.image-container');
+    const img = document.querySelector('.map-image');
+
+    container.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        imgStartX = img.offsetLeft;
+        imgStartY = img.offsetTop;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging){
+            e.preventDefault();
+            const dx = (e.clientX - startX);
+            const dy = (e.clientY - startY);
+            img.style.left = `${imgStartX + dx}px`;
+            img.style.top = `${imgStartY + dy}px`;
+            updateMarkerPosition();
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+
+    document.addEventListener('mouseleave', () => {
+        isDragging = false;
+    });
+
+    // Function to update the marker position based on the image position and scale
+    function updateMarkerPosition() {
+        const trainMarker = document.getElementById('train-marker'); // 위치 표시 마커(화살표 이미지)
+        const imgRect = img.getBoundingClientRect(); /* 이미지와 컨테이너의 경계 사각형을 나타내는 객체 생성 */
+        const containerRect = container.getBoundingClientRect(); 
+
+        // Calculate the scale factors
+        // 노선 이미지의 현재 너비와 높이를 원래 이미지의 너비와 높이로 나눔
+        // 노선 이미지가 얼마나 확대, 축소 되었는지 확인 가능
+        const scaleX = imgRect.width / img.naturalWidth;
+        const scaleY = imgRect.height / img.naturalHeight;
+
+        // Calculate the new position
+        /*
+        새로운 마커 위치 계산
+            originalCoords.x와 originalCoords.y는 원래 노선 이미지에서의 마커 좌표
+            scaleX와 scaleY를 곱하여 현재 이미지 크기에 맞게 좌표 조정
+            imgRect.left와 imgRect.top을 더하여 이미지의 현재 위치 반영
+            containerRect.left와 containerRect.top을 빼서 컨테이너의 경계를 기준으로 좌표 조정
+        */
+        const markerX = imgRect.left + (originalCoords.x * scaleX) - containerRect.left;
+        const markerY = imgRect.top + (originalCoords.y * scaleY) - containerRect.top;
+
+        // Set the new position and scale of the marker
+        /* 마커 위치와 크기 설정
+            trainMarker.style.left와 trainMarker.style.top을 통해 마커의 위치를 설정
+            trainMarker.style.transform을 통해 마커의 위치를 조정하고, scale을 사용하여 마커의 크기를 이미지의 배율에 맞게 조정 */
+        trainMarker.style.left = `${markerX}px`; // 픽셀로 변경
+        trainMarker.style.top = `${markerY}px`;
+        trainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
+    }
+
+    function updateMarkerPositionWithCoords(x, y) {
+        const trainMarker = document.getElementById('train-marker');
+        const imgRect = img.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        // Calculate the scale factors
+        const scaleX = imgRect.width / img.naturalWidth;
+        const scaleY = imgRect.height / img.naturalHeight;
+
+        // Calculate the new position
+        const markerX = imgRect.left + (x * scaleX) - containerRect.left;
+        const markerY = imgRect.top + (y * scaleY) - containerRect.top;
+
+        // Set the new position and scale of the marker
+        trainMarker.style.left = `${markerX}px`;
+        trainMarker.style.top = `${markerY}px`;
+        trainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
+    }
+
+    // Dummy train location data (this should come from your server)
+    let trainLocations = [
+        { x: 201, y: 590 },
+        { x: 272, y: 590 },
+        { x: 350, y: 590 },
+        { x: 427, y: 590 },
+        { x: 502, y: 590 },
+        { x: 568, y: 590 },
+        { x: 622, y: 590 },
+        // { x: 272, y: 590 },
+        // { x: 272, y: 590 }
+    ];
+
+    let currentIndex = 0;
+
+    function updateTrainPosition() {
+        const currentLocation = trainLocations[currentIndex];
+        updateMarkerPositionWithCoords(currentLocation.x, currentLocation.y);
+        currentIndex = (currentIndex + 1) % trainLocations.length;
+    }
+
+    // Update train position every 2 seconds (2000 milliseconds)
+    setInterval(updateTrainPosition, 2000);
+
+    // Initial update
+    updateMarkerPosition();
+</script>
 {% endblock %}

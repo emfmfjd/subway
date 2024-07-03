@@ -16,9 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from line3.views import home_redirect
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', home_redirect),
     path('line3/', include('line3.urls')),
 ]
 

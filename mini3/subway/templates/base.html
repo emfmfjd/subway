@@ -139,7 +139,6 @@
                 resizeImage('smaller');
             }
         })
-
         // const img = document.querySelector('.map-image')
         // container.addEventListener('mousedown', (e) => {
         //     isDragging = true;
@@ -187,6 +186,7 @@
         const img = document.querySelector('.map-image');
 
         // 마우스 버튼을 눌렀을 때 드래그 시작 위치를 저장합니다.
+
         container.addEventListener('mousedown', (e) => {
             isDragging = true;
             startX = e.clientX;
@@ -196,8 +196,9 @@
         });
 
         // 마우스 이동 중일 때 이미지를 이동시킵니다.
+
         document.addEventListener('mousemove', (e) => {
-            if (isDragging){
+            if (isDragging) {
                 e.preventDefault();
                 const dx = (e.clientX - startX);
                 const dy = (e.clientY - startY);
