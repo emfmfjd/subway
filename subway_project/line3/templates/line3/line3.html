@@ -8,6 +8,19 @@
     <img class="map-image" src="{% static 'line3/line3.png' %}" alt="3호선 노선도 이미지">
     <div class="train-marker" id="train-marker"></div>
 </div>
+    {% block styles %}
+    <style>
+    .train-marker {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        background: url('{% static "line3/line3_down_default.png" %}') no-repeat center center;
+        background-size: contain;
+        z-index: 1000;
+    }
+    </style>
+    {% endblock %}
+
 {% endblock %}
 
 {% block scripts %}
@@ -70,32 +83,17 @@
 
     // Function to update the marker position based on the image position and scale
     function updateMarkerPosition() {
-        const trainMarker = document.getElementById('train-marker'); // 위치 표시 마커(화살표 이미지)
-        const imgRect = img.getBoundingClientRect(); /* 이미지와 컨테이너의 경계 사각형을 나타내는 객체 생성 */
-        const containerRect = container.getBoundingClientRect(); 
+        const trainMarker = document.getElementById('train-marker');
+        const imgRect = img.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
 
-        // Calculate the scale factors
-        // 노선 이미지의 현재 너비와 높이를 원래 이미지의 너비와 높이로 나눔
-        // 노선 이미지가 얼마나 확대, 축소 되었는지 확인 가능
         const scaleX = imgRect.width / img.naturalWidth;
         const scaleY = imgRect.height / img.naturalHeight;
 
-        // Calculate the new position
-        /*
-        새로운 마커 위치 계산
-            originalCoords.x와 originalCoords.y는 원래 노선 이미지에서의 마커 좌표
-            scaleX와 scaleY를 곱하여 현재 이미지 크기에 맞게 좌표 조정
-            imgRect.left와 imgRect.top을 더하여 이미지의 현재 위치 반영
-            containerRect.left와 containerRect.top을 빼서 컨테이너의 경계를 기준으로 좌표 조정
-        */
         const markerX = imgRect.left + (originalCoords.x * scaleX) - containerRect.left;
         const markerY = imgRect.top + (originalCoords.y * scaleY) - containerRect.top;
 
-        // Set the new position and scale of the marker
-        /* 마커 위치와 크기 설정
-            trainMarker.style.left와 trainMarker.style.top을 통해 마커의 위치를 설정
-            trainMarker.style.transform을 통해 마커의 위치를 조정하고, scale을 사용하여 마커의 크기를 이미지의 배율에 맞게 조정 */
-        trainMarker.style.left = `${markerX}px`; // 픽셀로 변경
+        trainMarker.style.left = `${markerX}px`;
         trainMarker.style.top = `${markerY}px`;
         trainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
     }
@@ -105,15 +103,12 @@
         const imgRect = img.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
 
-        // Calculate the scale factors
         const scaleX = imgRect.width / img.naturalWidth;
         const scaleY = imgRect.height / img.naturalHeight;
 
-        // Calculate the new position
         const markerX = imgRect.left + (x * scaleX) - containerRect.left;
         const markerY = imgRect.top + (y * scaleY) - containerRect.top;
 
-        // Set the new position and scale of the marker
         trainMarker.style.left = `${markerX}px`;
         trainMarker.style.top = `${markerY}px`;
         trainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
@@ -121,51 +116,52 @@
 
     // Dummy train location data (this should come from your server)
     let trainLocations = [
-        { x: 201, y: 590 },
-        { x: 272, y: 590 },
-        { x: 350, y: 590 },
-        { x: 427, y: 590 },
-        { x: 502, y: 590 },
-        { x: 568, y: 590 },
-        { x: 624, y: 590 },
-        { x: 679, y: 590 },
-        { x: 731, y: 590 },
-        { x: 787, y: 590 },
-        { x: 838, y: 590 },
-        { x: 898, y: 590 },
-        { x: 943, y: 590 },
-        { x: 1078, y: 590 },
-        { x: 1156, y: 590 },
-        { x: 1224, y: 590 },
-        { x: 1294, y: 590 },
-        { x: 1375, y: 640 },
-        { x: 1423, y: 685 },
-        { x: 1468, y: 738 },
-        { x: 1545, y: 825 },
-        { x: 1545, y: 965 },
-        { x: 1643, y: 1077 },
-        { x: 1725, y: 1158 },
-        { x: 1815, y: 1232 },
-        { x: 1840, y: 1287 },
-        { x: 1840, y: 1345 },
-        { x: 1840, y: 1432 },
-        { x: 1840, y: 1483 },
-        { x: 1840, y: 1528 },
-        { x: 1840, y: 1578 },
-        { x: 1840, y: 1665 },
-        { x: 1875, y: 1712 },
-        { x: 1942, y: 1757 },
-        { x: 2043, y: 1757 },
-        { x: 2155, y: 1757 },
-        { x: 2250, y: 1757 },
-        { x: 2340, y: 1757 },
-        { x: 2456, y: 1757 },
-        { x: 2576, y: 1757 },
-        { x: 2711, y: 1840 },
-        { x: 2821, y: 1735 },
-        { x: 2883, y: 1685 },
-        { x: 2975, y: 1625 },
-    ];
+    { x: 201, y: 590, station: "대화" },
+    { x: 272, y: 590, station: "주엽" },
+    { x: 350, y: 590, station: "정발산" },
+    { x: 427, y: 590, station: "마두" },
+    { x: 502, y: 590, station: "백석" },
+    { x: 568, y: 590, station: "대곡" },
+    { x: 624, y: 590, station: "화정" },
+    { x: 679, y: 590, station: "원당" },
+    { x: 731, y: 590, station: "원흥" },
+    { x: 787, y: 590, station: "삼송" },
+    { x: 838, y: 590, station: "지축" },
+    { x: 898, y: 590, station: "구파발" },
+    { x: 943, y: 590, station: "연신내" },
+    { x: 1078, y: 590, station: "불광" },
+    { x: 1156, y: 590, station: "녹번" },
+    { x: 1224, y: 590, station: "홍제" },
+    { x: 1294, y: 590, station: "무악재" },
+    { x: 1375, y: 640, station: "독립문" },
+    { x: 1423, y: 685, station: "경복궁" },
+    { x: 1468, y: 738, station: "안국" },
+    { x: 1545, y: 825, station: "종로3가" },
+    { x: 1545, y: 965, station: "을지로3가" },
+    { x: 1643, y: 1077, station: "충무로" },
+    { x: 1725, y: 1158, station: "동대입구" },
+    { x: 1815, y: 1232, station: "약수" },
+    { x: 1840, y: 1287, station: "금호" },
+    { x: 1840, y: 1345, station: "옥수" },
+    { x: 1840, y: 1432, station: "압구정" },
+    { x: 1840, y: 1483, station: "신사" },
+    { x: 1840, y: 1528, station: "잠원" },
+    { x: 1840, y: 1578, station: "고속터미널" },
+    { x: 1840, y: 1665, station: "교대" },
+    { x: 1875, y: 1712, station: "남부터미널" },
+    { x: 1942, y: 1757, station: "양재" },
+    { x: 2043, y: 1757, station: "매봉" },
+    { x: 2155, y: 1757, station: "도곡" },
+    { x: 2250, y: 1757, station: "대치" },
+    { x: 2340, y: 1757, station: "학여울" },
+    { x: 2456, y: 1757, station: "대청" },
+    { x: 2576, y: 1757, station: "일원" },
+    { x: 2711, y: 1840, station: "수서" },
+    { x: 2821, y: 1735, station: "가락시장" },
+    { x: 2883, y: 1685, station: "경찰병원" },
+    { x: 2975, y: 1625, station: "오금" }
+];
+
 
     let currentIndex = 0;
 
@@ -175,7 +171,7 @@
         currentIndex = (currentIndex + 1) % trainLocations.length;
     }
 
-    // Update train position every 2 seconds (2000 milliseconds)
+    // Update train position every 1 second (1000 milliseconds)
     setInterval(updateTrainPosition, 1000);
 
     // Initial update
