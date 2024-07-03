@@ -6,26 +6,127 @@
 {% block content %}
 <div class="image-container">
     <img class="map-image" src="{% static 'line3/line3.png' %}" alt="3호선 노선도 이미지">
-    <div class="train-marker" id="train-marker"></div>
+    <div class="train-marker" id="up-train-marker"></div>
+    <div class="train-marker down" id="down-train-marker"></div>
 </div>
     {% block styles %}
     <style>
-    .train-marker {
-        position: absolute;
-        width: 50px;
-        height: 50px;
-        background: url('{% static "marker/line3_down_180_default.png" %}') no-repeat center center;
-        background-size: contain;
-        z-index: 1000;
-    }
-    </style>
+        .train-marker {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: url('{% static "marker/line3_down_180_default.png" %}') no-repeat center center;
+            background-size: contain;
+            z-index: 1000;
+        }
+        
+        .train-marker.down {
+            background: url('{% static "marker/line3_up_0_default.png" %}') no-repeat center center;
+        }
+        </style>
     {% endblock %}
-
 {% endblock %}
 
 {% block scripts %}
 <script>
-    const originalCoords = { x: 2975, y: 1605 }; // Original coordinates on the image
+    // Dummy train location data (this should come from your server)
+    // 상행 오금 -> 대화
+    let upTrainLocations = [
+        { x: 2975, y: 1605, station: "상행_오금" },
+        { x: 2883, y: 1665, station: "상행_경찰병원" },
+        { x: 2821, y: 1715, station: "상행_가락시장" },
+        { x: 2711, y: 1820, station: "상행_수서" },
+        { x: 2576, y: 1747, station: "상행_일원" },
+        { x: 2456, y: 1747, station: "상행_대청" },
+        { x: 2340, y: 1747, station: "상행_학여울" },
+        { x: 2250, y: 1747, station: "상행_대치" },
+        { x: 2155, y: 1747, station: "상행_도곡" },
+        { x: 2043, y: 1747, station: "상행_매봉" },
+        { x: 1942, y: 1747, station: "상행_양재" },
+        { x: 1875, y: 1722, station: "상행_남부터미널" },
+        { x: 1840, y: 1690, station: "상행_교대" },
+        { x: 1840, y: 1600, station: "상행_고속터미널" },
+        { x: 1840, y: 1548, station: "상행_잠원" },
+        { x: 1840, y: 1503, station: "상행_신사" },
+        { x: 1840, y: 1458, station: "상행_압구정" },
+        { x: 1840, y: 1365, station: "상행_옥수" },
+        { x: 1840, y: 1315, station: "상행_금호" },
+        { x: 1805, y: 1252, station: "상행_약수" },
+        { x: 1725, y: 1170, station: "상행_동대입구" },
+        { x: 1643, y: 1095, station: "상행_충무로" },
+        { x: 1545, y: 985, station: "상행_을지로3가" },
+        { x: 1545, y: 845, station: "상행_종로3가" },
+        { x: 1478, y: 768, station: "상행_안국" },
+        { x: 1423, y: 705, station: "상행_경복궁" },
+        { x: 1375, y: 660, station: "상행_독립문" },
+        { x: 1294, y: 590, station: "상행_무악재" },
+        { x: 1224, y: 590, station: "상행_홍제" },
+        { x: 1156, y: 590, station: "상행_녹번" },
+        { x: 1078, y: 590, station: "상행_불광" },
+        { x: 943, y: 590, station: "상행_연신내" },
+        { x: 898, y: 590, station: "상행_구파발" },
+        { x: 838, y: 590, station: "상행_지축" },
+        { x: 787, y: 590, station: "상행_삼송" },
+        { x: 731, y: 590, station: "상행_원흥" },
+        { x: 679, y: 590, station: "상행_원당" },
+        { x: 624, y: 590, station: "상행_화정" },
+        { x: 568, y: 590, station: "상행_대곡" },
+        { x: 502, y: 590, station: "상행_백석" },
+        { x: 427, y: 590, station: "상행_마두" },
+        { x: 350, y: 590, station: "상행_정발산" },
+        { x: 272, y: 590, station: "상행_주엽" },
+        { x: 201, y: 590, station: "상행_대화" }
+    ];
+
+    // 하행 대화 -> 오금
+    let downTrainLocations = [
+        { x: 201, y: 645, station: "하행_대화" },
+        { x: 272, y: 645, station: "하행_주엽" },
+        { x: 350, y: 645, station: "하행_정발산" },
+        { x: 427, y: 645, station: "하행_마두" },
+        { x: 502, y: 645, station: "하행_백석" },
+        { x: 568, y: 645, station: "하행_대곡" },
+        { x: 624, y: 645, station: "하행_화정" },
+        { x: 679, y: 645, station: "하행_원당" },
+        { x: 731, y: 645, station: "하행_원흥" },
+        { x: 787, y: 645, station: "하행_삼송" },
+        { x: 838, y: 645, station: "하행_지축" },
+        { x: 898, y: 645, station: "하행_구파발" },
+        { x: 943, y: 645, station: "하행_연신내" },
+        { x: 1078, y: 645, station: "하행_불광" },
+        { x: 1156, y: 645, station: "하행_녹번" },
+        { x: 1224, y: 645, station: "하행_홍제" },
+        { x: 1294, y: 645, station: "하행_무악재" },
+        { x: 1355, y: 660, station: "하행_독립문" },
+        { x: 1403, y: 705, station: "하행_경복궁" },
+        { x: 1443, y: 760, station: "하행_안국" },
+        { x: 1510, y: 835, station: "하행_종로3가" },
+        { x: 1510, y: 985, station: "하행_을지로3가" },
+        { x: 1620, y: 1085, station: "하행_충무로" },
+        { x: 1700, y: 1170, station: "하행_동대입구" },
+        { x: 1795, y: 1252, station: "하행_약수" },
+        { x: 1810, y: 1285, station: "하행_금호" },
+        { x: 1810, y: 1350, station: "하행_옥수" },
+        { x: 1810, y: 1438, station: "하행_압구정" },
+        { x: 1810, y: 1488, station: "하행_신사" },
+        { x: 1810, y: 1538, station: "하행_잠원" },
+        { x: 1810, y: 1575, station: "하행_고속터미널" },
+        { x: 1810, y: 1680, station: "하행_교대" },
+        { x: 1850, y: 1722, station: "하행_남부터미널" },
+        { x: 1942, y: 1795, station: "하행_양재" },
+        { x: 2043, y: 1795, station: "하행_매봉" },
+        { x: 2155, y: 1795, station: "하행_도곡" },
+        { x: 2250, y: 1795, station: "하행_대치" },
+        { x: 2340, y: 1795, station: "하행_학여울" },
+        { x: 2456, y: 1795, station: "하행_대청" },
+        { x: 2576, y: 1795, station: "하행_일원" },
+        { x: 2711, y: 1875, station: "하행_수서" },
+        { x: 2821, y: 1780, station: "하행_가락시장" },
+        { x: 2883, y: 1720, station: "하행_경찰병원" },
+        { x: 2975, y: 1655, station: "하행_오금" }
+    ];
+
+    const initialCoords = upTrainLocations[0];
 
     function resizeImage(action) {
         const img = document.querySelector('.map-image');
@@ -69,133 +170,116 @@
             const dy = (e.clientY - startY);
             img.style.left = `${imgStartX + dx}px`;
             img.style.top = `${imgStartY + dy}px`;
-            updateMarkerPosition();
         }
     });
 
-    document.addEventListener('mouseup', () => {
-        isDragging = false;
+    document.addEventListener('mouseup', (e) => {
+        if (isDragging) {
+            isDragging = false;
+            updateMarkerPosition(); // 마우스를 놓았을 때만 마커 위치를 업데이트합니다.
+        }
     });
 
-    document.addEventListener('mouseleave', () => {
-        isDragging = false;
+    document.addEventListener('mouseleave', (e) => {
+        if (isDragging) {
+            isDragging = false;
+            updateMarkerPosition(); // 마우스를 놓았을 때만 마커 위치를 업데이트합니다.
+        }
     });
 
     // Function to update the marker position based on the image position and scale
     function updateMarkerPosition() {
-        const trainMarker = document.getElementById('train-marker');
+        const upTrainMarker = document.getElementById('up-train-marker');
+        const downTrainMarker = document.getElementById('down-train-marker');
         const imgRect = img.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
 
         const scaleX = imgRect.width / img.naturalWidth;
         const scaleY = imgRect.height / img.naturalHeight;
 
-        const markerX = imgRect.left + (originalCoords.x * scaleX) - containerRect.left;
-        const markerY = imgRect.top + (originalCoords.y * scaleY) - containerRect.top;
+        const markerX = imgRect.left + (initialCoords.x * scaleX) - containerRect.left;
+        const markerY = imgRect.top + (initialCoords.y * scaleY) - containerRect.top;
+
+        upTrainMarker.style.left = `${markerX}px`;
+        upTrainMarker.style.top = `${markerY}px`;
+        upTrainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
+
+        downTrainMarker.style.left = `${markerX}px`;
+        downTrainMarker.style.top = `${markerY}px`;
+        downTrainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
+    }
+
+    function updateMarkerPositionWithCoords(markerId, x, y, station, direction) {
+        const trainMarker = document.getElementById(markerId);
+        const imgRect = img.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        const scaleX = imgRect.width / img.naturalWidth;
+        const scaleY = imgRect.height / img.naturalHeight;
+
+        const markerX = imgRect.left + (x * scaleX) - containerRect.left;
+        const markerY = imgRect.top + (y * scaleY) - containerRect.top;
+
+        // Image URLs
+        const imageUrlUp = '{% static "marker/line3_up_90_default.png" %}';
+        const imageUrlDown = '{% static "marker/line3_down_default.png" %}';
+        const imageUrlDefaultUp = '{% static "marker/line3_down_180_default.png" %}';
+        const imageUrlDefaultDown = '{% static "marker/line3_up_0_default.png" %}';
 
         trainMarker.style.left = `${markerX}px`;
         trainMarker.style.top = `${markerY}px`;
         trainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
+
+        console.log(`Station: ${station}, Direction: ${direction}`);
+
+        // Change the marker image based on the station range
+        if (direction === 'up') {
+            if (isInStationRange(station, "상행_남부터미널", "상행_독립문")) {
+                trainMarker.style.background = `url('${imageUrlUp}') no-repeat center center`;
+                console.log('Up train marker image changed to imageUrlUp');
+            } else {
+                trainMarker.style.background = `url('${imageUrlDefaultUp}') no-repeat center center`;
+                console.log('Up train marker image changed to imageUrlDefaultUp');
+            }
+        } else if (direction === 'down') {
+            if (isInStationRange(station, "하행_독립문", "하행_남부터미널")) {
+                trainMarker.style.background = `url('${imageUrlDown}') no-repeat center center`;
+                console.log('Down train marker image changed to imageUrlDown');
+            } else {
+                trainMarker.style.background = `url('${imageUrlDefaultDown}') no-repeat center center`;
+                console.log('Down train marker image changed to imageUrlDefaultDown');
+            }
+        }
+
+        trainMarker.style.backgroundSize = 'contain';
     }
 
-    function updateMarkerPositionWithCoords(x, y, station) {
-    const trainMarker = document.getElementById('train-marker');
-    const imgRect = img.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
 
-    const scaleX = imgRect.width / img.naturalWidth;
-    const scaleY = imgRect.height / img.naturalHeight;
-
-    const markerX = imgRect.left + (x * scaleX) - containerRect.left;
-    const markerY = imgRect.top + (y * scaleY) - containerRect.top;
-
-    // Image URLs
-    const imageUrlUp = '{% static "marker/line3_up_90_default.png" %}';
-    // const imageUrlDown = '{% static "marker/line3_down_180_default.png" %}';
-    const imageUrlDefault = '{% static "marker/line3_down_180_default.png" %}';
-
-    trainMarker.style.left = `${markerX}px`;
-    trainMarker.style.top = `${markerY}px`;
-    trainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
-
-    // Change the marker image based on the station range
-    if (isInStationRange(station, "상행_남부터미널", "상행_독립문")) {
-        trainMarker.style.background = `url('${imageUrlUp}') no-repeat center center`;
-    } else if (isInStationRange(station, "상행_무악재", "상행_대화") || isInStationRange(station, "상행_오금", "상행_양재")) {
-        trainMarker.style.background = `url('${imageUrlDefault}') no-repeat center center`;
-    }
-
-    trainMarker.style.backgroundSize = 'contain';
-    }
 
     function isInStationRange(station, startStation, endStation) {
-        const stationNames = trainLocations.map(location => location.station);
+    const stationNames = upTrainLocations.map(location => location.station).concat(downTrainLocations.map(location => location.station));
         const startIndex = stationNames.indexOf(startStation);
         const endIndex = stationNames.indexOf(endStation);
         const currentIndex = stationNames.indexOf(station);
 
-        return currentIndex >= startIndex && currentIndex <= endIndex;
+        return startIndex !== -1 && endIndex !== -1 && currentIndex >= startIndex && currentIndex <= endIndex;
     }
 
 
-    // Dummy train location data (this should come from your server)
-    // 상행 오금 -> 대화
-    let trainLocations = [
-    { x: 2975, y: 1605, station: "상행_오금" },
-    { x: 2883, y: 1665, station: "상행_경찰병원" },
-    { x: 2821, y: 1715, station: "상행_가락시장" },
-    { x: 2711, y: 1820, station: "상행_수서" },
-    { x: 2576, y: 1747, station: "상행_일원" },
-    { x: 2456, y: 1747, station: "상행_대청" },
-    { x: 2340, y: 1747, station: "상행_학여울" },
-    { x: 2250, y: 1747, station: "상행_대치" },
-    { x: 2155, y: 1747, station: "상행_도곡" },
-    { x: 2043, y: 1747, station: "상행_매봉" },
-    { x: 1942, y: 1747, station: "상행_양재" },
-    { x: 1875, y: 1722, station: "상행_남부터미널" },
-    { x: 1840, y: 1690, station: "상행_교대" },
-    { x: 1840, y: 1600, station: "상행_고속터미널" },
-    { x: 1840, y: 1548, station: "상행_잠원" },
-    { x: 1840, y: 1503, station: "상행_신사" },
-    { x: 1840, y: 1458, station: "상행_압구정" },
-    { x: 1840, y: 1365, station: "상행_옥수" },
-    { x: 1840, y: 1315, station: "상행_금호" },
-    { x: 1805, y: 1252, station: "상행_약수" },
-    { x: 1725, y: 1170, station: "상행_동대입구" },
-    { x: 1643, y: 1095, station: "상행_충무로" },
-    { x: 1545, y: 985, station: "상행_을지로3가" },
-    { x: 1545, y: 845, station: "상행_종로3가" },
-    { x: 1478, y: 768, station: "상행_안국" },
-    { x: 1423, y: 705, station: "상행_경복궁" },
-    { x: 1375, y: 660, station: "상행_독립문" },
-    { x: 1294, y: 590, station: "상행_무악재" },
-    { x: 1224, y: 590, station: "상행_홍제" },
-    { x: 1156, y: 590, station: "상행_녹번" },
-    { x: 1078, y: 590, station: "상행_불광" },
-    { x: 943, y: 590, station: "상행_연신내" },
-    { x: 898, y: 590, station: "상행_구파발" },
-    { x: 838, y: 590, station: "상행_지축" },
-    { x: 787, y: 590, station: "상행_삼송" },
-    { x: 731, y: 590, station: "상행_원흥" },
-    { x: 679, y: 590, station: "상행_원당" },
-    { x: 624, y: 590, station: "상행_화정" },
-    { x: 568, y: 590, station: "상행_대곡" },
-    { x: 502, y: 590, station: "상행_백석" },
-    { x: 427, y: 590, station: "상행_마두" },
-    { x: 350, y: 590, station: "상행_정발산" },
-    { x: 272, y: 590, station: "상행_주엽" },
-    { x: 201, y: 590, station: "상행_대화" }
-    ];
-
-
-    let currentIndex = 0;
+    let upCurrentIndex = 0;
+    let downCurrentIndex = 0;
 
     function updateTrainPosition() {
-    const currentLocation = trainLocations[currentIndex];
-    updateMarkerPositionWithCoords(currentLocation.x, currentLocation.y, currentLocation.station);
-    currentIndex = (currentIndex + 1) % trainLocations.length;
-}
+        // Update up train marker
+        const upCurrentLocation = upTrainLocations[upCurrentIndex];
+        updateMarkerPositionWithCoords('up-train-marker', upCurrentLocation.x, upCurrentLocation.y, upCurrentLocation.station, 'up');
+        upCurrentIndex = (upCurrentIndex + 1) % upTrainLocations.length;
 
+        // Update down train marker
+        const downCurrentLocation = downTrainLocations[downCurrentIndex];
+        updateMarkerPositionWithCoords('down-train-marker', downCurrentLocation.x, downCurrentLocation.y, downCurrentLocation.station, 'down');
+        downCurrentIndex = (downCurrentIndex + 1) % downTrainLocations.length;
+    }
 
 
     // Update train position every 1 second (1000 milliseconds)
