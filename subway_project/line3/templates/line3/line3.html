@@ -14,7 +14,7 @@
         position: absolute;
         width: 50px;
         height: 50px;
-        background: url('{% static "line3/line3_down_default.png" %}') no-repeat center center;
+        background: url('{% static "marker/line3_down_180_default.png" %}') no-repeat center center;
         background-size: contain;
         z-index: 1000;
     }
@@ -25,7 +25,7 @@
 
 {% block scripts %}
 <script>
-    const originalCoords = { x: 201, y: 590 }; // Original coordinates on the image
+    const originalCoords = { x: 2975, y: 1605 }; // Original coordinates on the image
 
     function resizeImage(action) {
         const img = document.querySelector('.map-image');
@@ -98,78 +98,105 @@
         trainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
     }
 
-    function updateMarkerPositionWithCoords(x, y) {
-        const trainMarker = document.getElementById('train-marker');
-        const imgRect = img.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
+    function updateMarkerPositionWithCoords(x, y, station) {
+    const trainMarker = document.getElementById('train-marker');
+    const imgRect = img.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
 
-        const scaleX = imgRect.width / img.naturalWidth;
-        const scaleY = imgRect.height / img.naturalHeight;
+    const scaleX = imgRect.width / img.naturalWidth;
+    const scaleY = imgRect.height / img.naturalHeight;
 
-        const markerX = imgRect.left + (x * scaleX) - containerRect.left;
-        const markerY = imgRect.top + (y * scaleY) - containerRect.top;
+    const markerX = imgRect.left + (x * scaleX) - containerRect.left;
+    const markerY = imgRect.top + (y * scaleY) - containerRect.top;
 
-        trainMarker.style.left = `${markerX}px`;
-        trainMarker.style.top = `${markerY}px`;
-        trainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
+    // Image URLs
+    const imageUrlUp = '{% static "marker/line3_up_90_default.png" %}';
+    // const imageUrlDown = '{% static "marker/line3_down_180_default.png" %}';
+    const imageUrlDefault = '{% static "marker/line3_down_180_default.png" %}';
+
+    trainMarker.style.left = `${markerX}px`;
+    trainMarker.style.top = `${markerY}px`;
+    trainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
+
+    // Change the marker image based on the station range
+    if (isInStationRange(station, "상행_남부터미널", "상행_독립문")) {
+        trainMarker.style.background = `url('${imageUrlUp}') no-repeat center center`;
+    } else if (isInStationRange(station, "상행_무악재", "상행_대화") || isInStationRange(station, "상행_오금", "상행_양재")) {
+        trainMarker.style.background = `url('${imageUrlDefault}') no-repeat center center`;
     }
 
+    trainMarker.style.backgroundSize = 'contain';
+    }
+
+    function isInStationRange(station, startStation, endStation) {
+        const stationNames = trainLocations.map(location => location.station);
+        const startIndex = stationNames.indexOf(startStation);
+        const endIndex = stationNames.indexOf(endStation);
+        const currentIndex = stationNames.indexOf(station);
+
+        return currentIndex >= startIndex && currentIndex <= endIndex;
+    }
+
+
     // Dummy train location data (this should come from your server)
+    // 상행 오금 -> 대화
     let trainLocations = [
-    { x: 201, y: 590, station: "대화" },
-    { x: 272, y: 590, station: "주엽" },
-    { x: 350, y: 590, station: "정발산" },
-    { x: 427, y: 590, station: "마두" },
-    { x: 502, y: 590, station: "백석" },
-    { x: 568, y: 590, station: "대곡" },
-    { x: 624, y: 590, station: "화정" },
-    { x: 679, y: 590, station: "원당" },
-    { x: 731, y: 590, station: "원흥" },
-    { x: 787, y: 590, station: "삼송" },
-    { x: 838, y: 590, station: "지축" },
-    { x: 898, y: 590, station: "구파발" },
-    { x: 943, y: 590, station: "연신내" },
-    { x: 1078, y: 590, station: "불광" },
-    { x: 1156, y: 590, station: "녹번" },
-    { x: 1224, y: 590, station: "홍제" },
-    { x: 1294, y: 590, station: "무악재" },
-    { x: 1375, y: 640, station: "독립문" },
-    { x: 1423, y: 685, station: "경복궁" },
-    { x: 1468, y: 738, station: "안국" },
-    { x: 1545, y: 825, station: "종로3가" },
-    { x: 1545, y: 965, station: "을지로3가" },
-    { x: 1643, y: 1077, station: "충무로" },
-    { x: 1725, y: 1158, station: "동대입구" },
-    { x: 1815, y: 1232, station: "약수" },
-    { x: 1840, y: 1287, station: "금호" },
-    { x: 1840, y: 1345, station: "옥수" },
-    { x: 1840, y: 1432, station: "압구정" },
-    { x: 1840, y: 1483, station: "신사" },
-    { x: 1840, y: 1528, station: "잠원" },
-    { x: 1840, y: 1578, station: "고속터미널" },
-    { x: 1840, y: 1665, station: "교대" },
-    { x: 1875, y: 1712, station: "남부터미널" },
-    { x: 1942, y: 1757, station: "양재" },
-    { x: 2043, y: 1757, station: "매봉" },
-    { x: 2155, y: 1757, station: "도곡" },
-    { x: 2250, y: 1757, station: "대치" },
-    { x: 2340, y: 1757, station: "학여울" },
-    { x: 2456, y: 1757, station: "대청" },
-    { x: 2576, y: 1757, station: "일원" },
-    { x: 2711, y: 1840, station: "수서" },
-    { x: 2821, y: 1735, station: "가락시장" },
-    { x: 2883, y: 1685, station: "경찰병원" },
-    { x: 2975, y: 1625, station: "오금" }
-];
+    { x: 2975, y: 1605, station: "상행_오금" },
+    { x: 2883, y: 1665, station: "상행_경찰병원" },
+    { x: 2821, y: 1715, station: "상행_가락시장" },
+    { x: 2711, y: 1820, station: "상행_수서" },
+    { x: 2576, y: 1747, station: "상행_일원" },
+    { x: 2456, y: 1747, station: "상행_대청" },
+    { x: 2340, y: 1747, station: "상행_학여울" },
+    { x: 2250, y: 1747, station: "상행_대치" },
+    { x: 2155, y: 1747, station: "상행_도곡" },
+    { x: 2043, y: 1747, station: "상행_매봉" },
+    { x: 1942, y: 1747, station: "상행_양재" },
+    { x: 1875, y: 1722, station: "상행_남부터미널" },
+    { x: 1840, y: 1690, station: "상행_교대" },
+    { x: 1840, y: 1600, station: "상행_고속터미널" },
+    { x: 1840, y: 1548, station: "상행_잠원" },
+    { x: 1840, y: 1503, station: "상행_신사" },
+    { x: 1840, y: 1458, station: "상행_압구정" },
+    { x: 1840, y: 1365, station: "상행_옥수" },
+    { x: 1840, y: 1315, station: "상행_금호" },
+    { x: 1805, y: 1252, station: "상행_약수" },
+    { x: 1725, y: 1170, station: "상행_동대입구" },
+    { x: 1643, y: 1095, station: "상행_충무로" },
+    { x: 1545, y: 985, station: "상행_을지로3가" },
+    { x: 1545, y: 845, station: "상행_종로3가" },
+    { x: 1478, y: 768, station: "상행_안국" },
+    { x: 1423, y: 705, station: "상행_경복궁" },
+    { x: 1375, y: 660, station: "상행_독립문" },
+    { x: 1294, y: 590, station: "상행_무악재" },
+    { x: 1224, y: 590, station: "상행_홍제" },
+    { x: 1156, y: 590, station: "상행_녹번" },
+    { x: 1078, y: 590, station: "상행_불광" },
+    { x: 943, y: 590, station: "상행_연신내" },
+    { x: 898, y: 590, station: "상행_구파발" },
+    { x: 838, y: 590, station: "상행_지축" },
+    { x: 787, y: 590, station: "상행_삼송" },
+    { x: 731, y: 590, station: "상행_원흥" },
+    { x: 679, y: 590, station: "상행_원당" },
+    { x: 624, y: 590, station: "상행_화정" },
+    { x: 568, y: 590, station: "상행_대곡" },
+    { x: 502, y: 590, station: "상행_백석" },
+    { x: 427, y: 590, station: "상행_마두" },
+    { x: 350, y: 590, station: "상행_정발산" },
+    { x: 272, y: 590, station: "상행_주엽" },
+    { x: 201, y: 590, station: "상행_대화" }
+    ];
 
 
     let currentIndex = 0;
 
     function updateTrainPosition() {
-        const currentLocation = trainLocations[currentIndex];
-        updateMarkerPositionWithCoords(currentLocation.x, currentLocation.y);
-        currentIndex = (currentIndex + 1) % trainLocations.length;
-    }
+    const currentLocation = trainLocations[currentIndex];
+    updateMarkerPositionWithCoords(currentLocation.x, currentLocation.y, currentLocation.station);
+    currentIndex = (currentIndex + 1) % trainLocations.length;
+}
+
+
 
     // Update train position every 1 second (1000 milliseconds)
     setInterval(updateTrainPosition, 1000);
