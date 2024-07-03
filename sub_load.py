@@ -26,7 +26,7 @@ dag = DAG(
     dag_id = 'subway_load',
     description="subway_test",
     start_date=datetime(2024, 7,1, tzinfo=kst),
-    schedule_interval="*/1 0 * * *",
+    schedule_interval="*/5 0 * * *",
     catchup=False,
 )
 
