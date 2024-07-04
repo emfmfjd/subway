@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}기본 타이틀{% endblock %}</title>
+    <link rel="stylesheet" type="text/css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         @font-face {
             font-family: 'BMJUA';
@@ -11,51 +13,223 @@
             font-weight: normal;
             font-style: normal;
         }
-        body {
-            font-family: 'BMJUA', sans-serif;
+        nav {
+            max-width: 500px; /* 원하는 최대 너비 설정 */
+            margin: 0 auto; /* 가로로 가운데 정렬 */
+            background-color: rgb(235, 238, 243); /* 기존 배경색 유지 */
+            border-radius: 10px; /* 선택 사항: 모서리를 둥글게 */
             align-items: center;
-            justify-content: center;
+            transform: translateY(-55%); /* 얼마나 겹칠지 */
+            box-shadow: 3px 3px 7px rgb(183, 185, 185), -3px -3px 7px rgb(183, 185, 185);
+            z-index: 1000;
+            position: relative;
         }
+        
         .header {
             display: flex;
             align-items: center;
             justify-content: center;
             background-color: rgb(255, 226, 236);
+            /* z-index: 10; */
+            padding-bottom: 25px;
         }
         .header img {
-            width: 20px;
+            width: 30px;
         }
-        .header span {
-            margin: 0 10px;
+        .controls {
+            top: 250px;
+            right: 20px;
+            /* transform: translateY(-100%); */
+            display: flex;
+            flex-direction: column;
+            z-index: 10000;
+            position: fixed;
         }
-        
+        .image-container {
+            width: 1928px;
+            height: 1565px;
+            max-width: 100%;
+            max-height: 80vh;
+            overflow: hidden;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateY(0%);
+            z-index: 1;
+        }
+        .map-image {
+            display: block;
+            max-width: none;
+            height: auto;
+            width: 110%; /* 초기 이미지 확대배율 */
+            transition: width 0.5s, transform 0.5s;
+            position: absolute;
+            object-fit: contain;
+            top: 50%;
+            left: 50%;
+            transform: translate(-60%, -43%);
+        }
+        .map-image:active {
+            cursor: grabbing;
+        }
+        .train-marker {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            /* background: url('{% static "marker/line3_down_180_default.png" %}') no-repeat center center; */
+            background-size: contain;
+            z-index: 1000;
+            transition: transform 0.01s;
+        }
     </style>
-    <header class="header">
-        <h1><img src="{% static 'subway/루피left.png' %}" alt="루피 left" style="width: 30px;">
-        <span>당당루피즈 지하철 노선도</span>
-        <img src="{% static 'subway/루피right.png' %}" alt="루피 right" style="width: 30px;"></h1>
-    </header>
-</body>
-<body>
-    <div style="text-align: center;">
-        <nav style="display: inline-block;"> 
-            <a href="{% url 'subway:1호선' %}"><img src="{% static 'subway/1.png' %}" style="width: 50px; margin: 10px;"></a>
-            <a href="{% url 'subway:2호선' %}"><img src="{% static 'subway/2.png' %}" style="width: 50px; margin: 10px;"></a>
-            <a href="{% url 'subway:3호선' %}"><img src="{% static 'subway/3.png' %}" style="width: 50px; margin: 10px;"></a>
-            <a href="{% url 'subway:4호선' %}"><img src="{% static 'subway/4.png' %}" style="width: 50px; margin: 10px;"></a>
-            <a href="{% url 'subway:5호선' %}"><img src="{% static 'subway/5.png' %}" style="width: 50px; margin: 10px;"></a>
-            <a href="{% url 'subway:6호선' %}"><img src="{% static 'subway/6.png' %}" style="width: 50px; margin: 10px;"></a>
-            <a href="{% url 'subway:7호선' %}"><img src="{% static 'subway/7.png' %}" style="width: 50px; margin: 10px;"></a>
-            <a href="{% url 'subway:8호선' %}"><img src="{% static 'subway/8.png' %}" style="width: 50px; margin: 10px;"></a>
-        </nav>
+    {% block style %}
+    {% endblock %}
+    
+</head>
 
-    </div>
+<body>
+    <header class="header" style="font-family: 'BMJUA';">
+        <h1>
+            <img src="{% static 'subway/루피left.png' %}" alt="루피 left">
+            <span>당당루피즈 지하철 노선도</span>
+            <img src="{% static 'subway/루피right.png' %}" alt="루피 right">
+        </h1>
+    </header>
     <main>
         {% block content %}
         {% endblock %}
-        <div style="float:right;">
-            <img src="{% static 'subway/zoomin.png' %}" style="width: 20px;"><br><img src="{% static 'subway/zoomout.png' %}" style="width: 20px;">
+        <div style="text-align: center;">
+            <nav> <!-- 호선 별 페이지 옮기기 -->
+                <a href="{% url 'subway:1호선' %}"><img src="{% static 'subway/1.png' %}" style="width: 40px; margin: 8px;"></a>
+                <a href="{% url 'subway:2호선' %}"><img src="{% static 'subway/2.png' %}" style="width: 40px; margin: 8px;"></a>
+                <a href="{% url 'subway:3호선' %}"><img src="{% static 'subway/3.png' %}" style="width: 40px; margin: 8px;"></a>
+                <a href="{% url 'subway:4호선' %}"><img src="{% static 'subway/4.png' %}" style="width: 40px; margin: 8px;"></a>
+                <a href="{% url 'subway:5호선' %}"><img src="{% static 'subway/5.png' %}" style="width: 40px; margin: 8px;"></a>
+                <a href="{% url 'subway:6호선' %}"><img src="{% static 'subway/6.png' %}" style="width: 40px; margin: 8px;"></a>
+                <a href="{% url 'subway:7호선' %}"><img src="{% static 'subway/7.png' %}" style="width: 40px; margin: 8px;"></a>
+                <a href="{% url 'subway:8호선' %}"><img src="{% static 'subway/8.png' %}" style="width: 40px; margin: 8px;"></a>
+            </nav>
         </div>
     </main>
+    <div class="controls"> <!-- 확대 축소 버튼 -->
+        <img src="{% static 'subway/zoomin.png' %}" onclick="resizeImage('larger')" style="width: 35px; margin: 5px;">
+        <img src="{% static 'subway/zoomout.png' %}" onclick="resizeImage('smaller')" style="width: 35px; margin: 5px;">
+    </div>
+    {% block script %}
+    {% endblock %}
+    <script>
+        function resizeImage(action) {
+            const img = document.querySelector('.map-image');
+            let currentWidth = img.style.width ? parseInt(img.style.width) : 120;
+            if (action === 'larger') {
+                currentWidth = Math.min(currentWidth + 20, 160);
+            } else if (action === 'smaller') {
+                currentWidth = Math.max(currentWidth - 20, 100);
+            }
+            img.style.width = currentWidth + '%';
+            updateOverlayPosition();
+        }
+
+        document.querySelector('.image-container').addEventListener('wheel', function(event) {
+            event.preventDefault();
+            if (event.deltaY < 0) {
+                resizeImage('larger');
+            } else {
+                resizeImage('smaller');
+            }
+        })
+
+        
+        let isDragging = false;
+        let startX, startY, imgStartX, imgStartY;
+
+        const container = document.querySelector('.image-container');
+        const img = document.querySelector('.map-image');
+
+        // 마우스 버튼을 눌렀을 때 드래그 시작 위치를 저장합니다.
+
+        container.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            imgStartX = img.offsetLeft;
+            imgStartY = img.offsetTop;
+        });
+
+        // 마우스 이동 중일 때 이미지를 이동시킵니다.
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                const dx = (e.clientX - startX);
+                const dy = (e.clientY - startY);
+                img.style.left = `${imgStartX + dx}px`;
+                img.style.top = `${imgStartY + dy}px`;
+            }
+        });
+
+        // 마우스 버튼을 놓았을 때 드래그를 중지하고 마커 위치를 업데이트합니다.
+        document.addEventListener('mouseup', (e) => {
+            if (isDragging) {
+                isDragging = false;
+                updateMarkerPosition(); // 마우스를 놓았을 때만 마커 위치를 업데이트합니다.
+            }
+        });
+
+        // 마우스가 화면을 벗어났을 때 드래그를 중지하고 마커 위치를 업데이트합니다.
+        document.addEventListener('mouseleave', (e) => {
+            if (isDragging) {
+                isDragging = false;
+                updateMarkerPosition(); // 마우스를 놓았을 때만 마커 위치를 업데이트합니다.
+            }
+        });
+
+        // 이미지 위치와 크기에 따라 마커 위치를 업데이트하는 함수
+        function updateMarkerPosition() {
+            const upTrainMarker = document.getElementById('up-train-marker');
+            const downTrainMarker = document.getElementById('down-train-marker');
+            const imgRect = img.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+        
+            const scaleX = imgRect.width / img.naturalWidth;
+            const scaleY = imgRect.height / img.naturalHeight;
+        
+            const markerX = imgRect.left + (initialCoords.x * scaleX) - containerRect.left;
+            const markerY = imgRect.top + (initialCoords.y * scaleY) - containerRect.top;
+        
+            upTrainMarker.style.left = `${markerX}px`;
+            upTrainMarker.style.top = `${markerY}px`;
+            upTrainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
+        
+            downTrainMarker.style.left = `${markerX}px`;
+            downTrainMarker.style.top = `${markerY}px`;
+            downTrainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
+        }
+    </script>
+    {% block bet-script %}
+    {% endblock %}
+    <script>
+
+
+        // 역이 지정된 범위 내에 있는지 확인하는 함수
+        function isInStationRange(station, startStation, endStation) {
+            const stationNames = upTrainLocations.map(location => location.station).concat(downTrainLocations.map(location => location.station));
+            const startIndex = stationNames.indexOf(startStation);
+            const endIndex = stationNames.indexOf(endStation);
+            const currentIndex = stationNames.indexOf(station);
+        
+            return startIndex !== -1 && endIndex !== -1 && currentIndex >= startIndex && currentIndex <= endIndex;
+        }
+
+        let upCurrentIndex = 0;
+        let downCurrentIndex = 0;
+
+        // 1초(1000밀리초)마다 기차 위치를 업데이트합니다.
+        setInterval(updateTrainPosition, 1000);
+
+
+    </script>
+    
 </body>
 </html>
