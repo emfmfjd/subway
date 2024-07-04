@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'subway.apps.SubwayConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
