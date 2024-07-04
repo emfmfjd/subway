@@ -40,7 +40,6 @@ def get_info_position():
     filtered_data = {key: r['errorMessage'][key] for key in ['status', 'code', 'message']}
     mes = pd.DataFrame([filtered_data])
     sample = data[['subwayNm', 'statnNm', 'statnTnm', 'trainSttus', 'updnLine']]
-    sample['subwayId'] = sample['subwayId'].astype(int)
     for col in mes.columns:
         sample[col] = mes[col].iloc[0]
     arrive = pd.concat([arrive, sample], ignore_index=True)
@@ -79,17 +78,17 @@ def processing_data():
         
     return position.to_csv('/home/hadoop/workspace/realtime_subway.csv', index = False, encoding = 'utf-8-sig')
 
-def save2Hadoop():
-    classpath = subprocess.Popen(["/home/hadoop/hadoop/bin/hdfs", "classpath", "--glob"], stdout=subprocess.PIPE).communicate()[0]
-    os.environ["CLASSPATH"] = classpath.decode("utf-8")
-    hdfs = fs.HadoopFileSystem(host='192.168.0.160', port=8020, user='hadoop')
-    df = pd.read_csv('/home/hadoop/workspace/realtime_subway.csv', encoding='utf-8-sig')
-    hdfs_path = '/subway_project/subway_data.csv'
-    with hdfs.open_output_stream(hdfs_path) as f:
-        df.to_csv(f, index=False)
+# def save2Hadoop():
+#     classpath = subprocess.Popen(["/home/hadoop/hadoop/bin/hdfs", "classpath", "--glob"], stdout=subprocess.PIPE).communicate()[0]
+#     os.environ["CLASSPATH"] = classpath.decode("utf-8")
+#     hdfs = fs.HadoopFileSystem(host='192.168.0.160', port=8020, user='hadoop')
+#     df = pd.read_csv('/home/hadoop/workspace/realtime_subway.csv', encoding='utf-8-sig')
+#     hdfs_path = '/subway_project/subway_data.csv'
+#     with hdfs.open_output_stream(hdfs_path) as f:
+#         df.to_csv(f, index=False)
         
-def send2kafka():
-    pass
+# def send2kafka():
+#     pass
 
 
 position_load = PythonOperator(task_id = 'position_data',
@@ -100,8 +99,8 @@ processing = PythonOperator(task_id = 'processing_data',
                              python_callable = processing_data,
                              dag = dag)
 
-send_data = PythonOperator(task_id = 'send_data',
-                             python_callable = save2Hadoop,
-                             dag = dag)
+# send_data = PythonOperator(task_id = 'send_data',
+#                              python_callable = save2Hadoop,
+#                              dag = dag)
 
 position_load >> processing
