@@ -119,8 +119,6 @@
         { x: 2975, y: 1665, station: "하행_오금" }
     ];
 
-
-    // stationMap 객체를 생성해 각 역의 좌표 저장
     const stationMap = {};
     upTrainLocations.concat(downTrainLocations).forEach(location => {
         stationMap[location.station] = location;
@@ -128,10 +126,7 @@
 
     let upTrainMarkers = [];
     let downTrainMarkers = [];
-    const maxTrains = 5; // 각 방향에 대한 최대 열차 수
 
-
-    // 새로운 마커 생성
     function createTrainMarker(id, direction) {
         const trainMarker = document.createElement('div');
         trainMarker.className = `train-marker ${direction}`;
@@ -171,41 +166,66 @@
         trainMarker.style.display = 'block'; // 위치가 계산된 후에 표시
     }
 
-    function updateTrainPositions(trains, direction, locations) {
-        trains.forEach((train, index) => {
-            const location = locations[train.currentIndex];
-            updateMarkerPositionWithCoords(train.marker, location.x, location.y, direction);
-            train.currentIndex = (train.currentIndex + 1) % locations.length;
+    function updateTrainPositionWithRealData(data) {
+        data.forEach(train => {
+            const direction = train.상하행구분 === 0 ? 'up' : 'down';
+            const station = direction === 'up' ? `상행_${train.지하철역명}` : `하행_${train.지하철역명}`;
+            const location = stationMap[station];
+
+            if (location) {
+                if (direction === 'up') {
+                    let existingTrain = upTrainMarkers.find(t => t.trainID === train.열차ID);
+                    if (!existingTrain) {
+                        existingTrain = addTrain('up', upTrainLocations, train.열차ID);
+                    }
+                    updateMarkerPositionWithCoords(existingTrain.marker, location.x, location.y, direction);
+                    existingTrain.currentIndex = upTrainLocations.findIndex(loc => loc.station === station);
+                } else {
+                    let existingTrain = downTrainMarkers.find(t => t.trainID === train.열차ID);
+                    if (!existingTrain) {
+                        existingTrain = addTrain('down', downTrainLocations, train.열차ID);
+                    }
+                    updateMarkerPositionWithCoords(existingTrain.marker, location.x, location.y, direction);
+                    existingTrain.currentIndex = downTrainLocations.findIndex(loc => loc.station === station);
+                }
+            }
         });
     }
 
-    function addTrain(direction, locations) {
-        const trainId = `${direction}-train-${Date.now()}`;
+    function addTrain(direction, locations, trainID) {
+        const trainId = `${direction}-train-${trainID}`;
         const marker = createTrainMarker(trainId, direction);
         const train = {
             marker: marker,
-            currentIndex: 0
+            currentIndex: 0,
+            trainID: trainID
         };
         if (direction === 'up') {
             upTrainMarkers.push(train);
         } else {
             downTrainMarkers.push(train);
         }
+        return train;
     }
 
-    setInterval(() => {
-        if (upTrainMarkers.length < maxTrains) {
-            addTrain('up', upTrainLocations);
-        }
-        if (downTrainMarkers.length < maxTrains) {
-            addTrain('down', downTrainLocations);
-        }
-    }, 10000); // 10초 간격으로 새로운 열차 추가
+    // WebSocket 연결 설정
+    const socket = new WebSocket('ws://' + window.location.host + '/ws/train-location/');
 
-    setInterval(() => {
-        updateTrainPositions(upTrainMarkers, 'up', upTrainLocations);
-        updateTrainPositions(downTrainMarkers, 'down', downTrainLocations);
-    }, 1000); // 1초마다 열차 위치 업데이트
+    socket.onopen = function(e) {
+        console.log("WebSocket connection opened.");
+    };
 
+    socket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        updateTrainPositionWithRealData(data);
+    };
+
+    socket.onclose = function(e) {
+        console.log("WebSocket connection closed.");
+    };
+
+    socket.onerror = function(e) {
+        console.error("WebSocket error: ", e);
+    };
 </script>
 {% endblock %}
