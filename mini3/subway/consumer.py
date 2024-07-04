@@ -14,7 +14,7 @@ class TrainLocationConsumer(AsyncWebsocketConsumer):
         # Kafka consumer를 설정 -> kafka consumer를 설정하여 지정된 토픽에서 메시지 수신
         self.consumer = KafkaConsumer(
             'subway',  # Kafka 토픽 이름
-            bootstrap_servers=['192.168.0.209:9092, 192.168.0.211:9092, 192.168.0.208:9092'],  # Kafka 서버 주소
+            bootstrap_servers=['192.168.0.209:9092', '192.168.0.211:9092', '192.168.0.208:9092'],  # Kafka 서버 주소
             auto_offset_reset='earliest',  # 시작 오프셋 설정
             enable_auto_commit=True,  # 자동 커밋 활성화
             group_id='train-location-group',  # consumer 그룹 ID
