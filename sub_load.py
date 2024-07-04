@@ -79,7 +79,7 @@ def processing_data():
     #return position.to_csv('/home/hadoop/workspace/realtime_subway.csv', index = False, encoding = 'utf-8-sig')
     with open('/home/hadoop/workspace/realtime_position.json', 'w', encoding='utf-8') as f:
         position.to_json(f, force_ascii=False, orient='records')
-    with open('./home/hadoop/workspace/realtime_position.json', 'r') as f:
+    with open('/home/hadoop/workspace/realtime_position.json', 'r') as f:
         data = json.load(f)
 
 ###########################################################################################################################
