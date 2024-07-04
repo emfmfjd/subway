@@ -81,34 +81,30 @@ def processing_data():
         position.to_json(f, force_ascii=False, orient='records')
     with open('/home/hadoop/workspace/realtime_position.json', 'r') as f:
         data = json.load(f)
+        
+        
+###########################################################################################################################
+def send2Kafka():
+    with open('/home/hadoop/workspace/realtime_position.json', 'r') as f:
+        subway_json = json.load(f)
+    conf = {
+        'bootstrap.servers': '192.168.0.209:9092,192.168.0.211:9092,192.168.0.208:9092',
+        'client.id': 'airflowproducer',
+        }
+    producer = Producer(conf)
+    data = subway_json
+    
+    message = json.dumps(data)
+    topic = 'subway'
+    def save_report(err,msg):
+        if err is not None:
+            print(f'Message delivery failed: {err}')
+        else:
+            print(f'Message delivery to {msg.topic()} ][{msg.partition()}]')
+    producer.produce(topic, message.encode('utf-8'), callback = save_report)
+    producer.flush()
 
 ###########################################################################################################################
-# def kafka_producer_function():
-#     conf = {
-#         'bootstrap.servers': '192.168.0.209:9092,192.168.0.211:9092,192.168.0.208:9092',
-#         'client.id': 'airflowproducer',
-#     }
-    
-#     producer = Producer(conf)
-    
-#     data = {
-#         'str' : 'hello world'
-#     }
-    
-#     message = json.dumps(data)
-    
-#     topic = 'subway'
-    
-#     def delivery_report(err, msg):
-#         if err is not None:
-#             print(f"Message delivery failed: {err}")
-#         else:
-#             print(f"Message delivered to {msg.topic()} [{msg.partition()}]")
-    
-#     producer.produce(topic, message.encode('utf-8'), callback=delivery_report)
-    
-#     producer.flush()
-
 # def save2Hadoop():
 #     classpath = subprocess.Popen(["/home/hadoop/hadoop/bin/hdfs", "classpath", "--glob"], stdout=subprocess.PIPE).communicate()[0]
 #     os.environ["CLASSPATH"] = classpath.decode("utf-8")
