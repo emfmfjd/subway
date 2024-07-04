@@ -14,12 +14,12 @@
             font-style: normal;
         }
         nav {
-            max-width: 500px; /* 원하는 최대 너비 설정 */
-            margin: 0 auto; /* 가로로 가운데 정렬 */
-            background-color: rgb(235, 238, 243); /* 기존 배경색 유지 */
-            border-radius: 10px; /* 선택 사항: 모서리를 둥글게 */
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: rgb(235, 238, 243);
+            border-radius: 10px;
             align-items: center;
-            transform: translateY(-55%); /* 얼마나 겹칠지 */
+            transform: translateY(-55%);
             box-shadow: 3px 3px 7px rgb(183, 185, 185), -3px -3px 7px rgb(183, 185, 185);
             z-index: 1000;
             position: fixed;
@@ -32,7 +32,6 @@
             align-items: center;
             justify-content: center;
             background-color: rgb(255, 226, 236);
-            /* z-index: 10; */
             padding-bottom: 25px;
         }
         .header img {
@@ -41,7 +40,6 @@
         .controls {
             top: 250px;
             right: 20px;
-            /* transform: translateY(-100%); */
             display: flex;
             flex-direction: column;
             z-index: 10000;
@@ -64,7 +62,7 @@
             display: block;
             max-width: none;
             height: auto;
-            width: 110%; /* 초기 이미지 확대배율 */
+            width: 110%;
             transition: width 0.5s, transform 0.5s;
             position: absolute;
             object-fit: contain;
@@ -79,7 +77,6 @@
             position: absolute;
             width: 50px;
             height: 50px;
-            /* background: url('{% static "marker/line3_down_180_default.png" %}') no-repeat center center; */
             background-size: contain;
             z-index: 1000;
             transition: transform 0.01s;
@@ -148,8 +145,6 @@
         const container = document.querySelector('.image-container');
         const img = document.querySelector('.map-image');
 
-        // 마우스 버튼을 눌렀을 때 드래그 시작 위치를 저장합니다.
-
         container.addEventListener('mousedown', (e) => {
             isDragging = true;
             startX = e.clientX;
@@ -157,8 +152,6 @@
             imgStartX = img.offsetLeft;
             imgStartY = img.offsetTop;
         });
-
-        // 마우스 이동 중일 때 이미지를 이동시킵니다.
 
         document.addEventListener('mousemove', (e) => {
             if (isDragging) {
@@ -170,23 +163,20 @@
             }
         });
 
-        // 마우스 버튼을 놓았을 때 드래그를 중지하고 마커 위치를 업데이트합니다.
         document.addEventListener('mouseup', (e) => {
             if (isDragging) {
                 isDragging = false;
-                updateMarkerPosition(); // 마우스를 놓았을 때만 마커 위치를 업데이트합니다.
+                updateMarkerPosition();
             }
         });
 
-        // 마우스가 화면을 벗어났을 때 드래그를 중지하고 마커 위치를 업데이트합니다.
         document.addEventListener('mouseleave', (e) => {
             if (isDragging) {
                 isDragging = false;
-                updateMarkerPosition(); // 마우스를 놓았을 때만 마커 위치를 업데이트합니다.
+                updateMarkerPosition();
             }
         });
 
-        // 이미지 위치와 크기에 따라 마커 위치를 업데이트하는 함수
         function updateMarkerPosition() {
             const upTrainMarker = document.getElementById('up-train-marker');
             const downTrainMarker = document.getElementById('down-train-marker');
@@ -210,25 +200,5 @@
     </script>
     {% block bet-script %}
     {% endblock %}
-    <script>
-
-        // 역이 지정된 범위 내에 있는지 확인하는 함수
-        function isInStationRange(station, startStation, endStation) {
-            const stationNames = upTrainLocations.map(location => location.station).concat(downTrainLocations.map(location => location.station));
-            const startIndex = stationNames.indexOf(startStation);
-            const endIndex = stationNames.indexOf(endStation);
-            const currentIndex = stationNames.indexOf(station);
-        
-            return startIndex !== -1 && endIndex !== -1 && currentIndex >= startIndex && currentIndex <= endIndex;
-        }
-
-        let upCurrentIndex = 0;
-        let downCurrentIndex = 0;
-
-        // 1초(1000밀리초)마다 기차 위치를 업데이트합니다.
-        setInterval(updateTrainPosition, 1000);
-
-    </script>
-    
 </body>
 </html>
