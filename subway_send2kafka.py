@@ -10,7 +10,7 @@ from confluent_kafka import Producer
 kst = pendulum.timezone("Asia/Seoul")
 
 dag = DAG(
-    dag_id='subway_load_second',
+    dag_id='subway_load_sample',
     description="subway_test",
     start_date=datetime(2024, 7, 1, tzinfo=kst),
     schedule_interval="*/5 0 * * *",
@@ -19,7 +19,7 @@ dag = DAG(
 
 def get_info_position():
     arrive = pd.DataFrame()
-    url = 'http://swopenapi.seoul.go.kr/api/subway/7874454f7a637733313033434a626b61/json/realtimePosition/0/1000/3호선'
+    url = 'http://swopenapi.seoul.go.kr/api/subway/75796665726377333130316845727342/json/realtimePosition/0/1000/3호선'
     r = requests.get(url).json()
     data = pd.json_normalize(r, record_path=['realtimePositionList'])
     filtered_data = {key: r['errorMessage'][key] for key in ['status', 'code', 'message']}
