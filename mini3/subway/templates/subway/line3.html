@@ -1,31 +1,26 @@
-{% extends 'base.html' %}
-{% load static %}
 {% block title %}3호선{% endblock %}
 
 {% block content %}
-    {% block style %}
-    <style>
-        .train-marker {
-            background: url('{% static "marker/line3_down_180_default.png" %}') no-repeat center center;
-            width: 30px; /* 마커의 크기 */
-            height: 30px; /* 마커의 크기 */
-            position: absolute;
-            display: none; /* 초기에는 숨김 */
-        }
-        .train-marker.down {
-            background: url('{% static "marker/line3_up_0_default.png" %}') no-repeat center center;
-        }
-    </style>
-    {% endblock %}
-
-    <div class="image-container" id="image-container" style="position: relative;">
-        <img class="map-image" src="{% static 'subway/lines/line3.png' %}" id="map-image">
-    </div>
+{% block style %}
+<style>
+    .train-maker {
+        background: url('{% static "marker/line3_down_180_default.png" %}') no-repeat center center;
+    }
+    .train-maker.down{
+        background: url('{% static "marker/line3_up_0_default.png" %}') no-repeat center center;
+    }
+</style>
 {% endblock %}
-
+<div class="image-container" id="image-container">
+    <img class="map-image" src="{% static 'subway/lines/line3.png' %}">
+    <div class="train-marker" id="up-train-marker"></div>
+    <div class="train-marker down" id="down-train-marker"></div>
+</div>
+{% endblock %}
 {% block script %}
 <script>
-    const upTrainLocations = [
+    // 상행 오금 -> 대화
+    let upTrainLocations = [
         { x: 2975, y: 1605, station: "상행_오금" },
         { x: 2883, y: 1665, station: "상행_경찰병원" },
         { x: 2821, y: 1715, station: "상행_가락시장" },
@@ -72,7 +67,8 @@
         { x: 201, y: 590, station: "상행_대화" }
     ];
 
-    const downTrainLocations = [
+    // 하행 대화 -> 오금
+    let downTrainLocations = [
         { x: 201, y: 645, station: "하행_대화" },
         { x: 272, y: 645, station: "하행_주엽" },
         { x: 350, y: 645, station: "하행_정발산" },
@@ -118,35 +114,23 @@
         { x: 2892, y: 1718, station: "하행_경찰병원" },
         { x: 2975, y: 1665, station: "하행_오금" }
     ];
-
-    const stationMap = {};
-    upTrainLocations.concat(downTrainLocations).forEach(location => {
-        stationMap[location.station] = location;
-    });
-
-    let upTrainMarkers = [];
-    let downTrainMarkers = [];
-
-    function createTrainMarker(id, direction) {
-        const trainMarker = document.createElement('div');
-        trainMarker.className = `train-marker ${direction}`;
-        trainMarker.id = id;
-        document.getElementById('image-container').appendChild(trainMarker);
-        return trainMarker;
-    }
-
-    function updateMarkerPositionWithCoords(marker, x, y, direction) {
-        const trainMarker = marker;
-        const img = document.getElementById('map-image');
+</script>
+{% endblock %}
+{% block bet-script %}
+<script>
+    // 좌표를 사용해 마커 위치를 업데이트하는 함수
+    function updateMarkerPositionWithCoords(markerId, x, y, station, direction) {
+        const trainMarker = document.getElementById(markerId);
         const imgRect = img.getBoundingClientRect();
-        const containerRect = document.querySelector('.image-container').getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
 
         const scaleX = imgRect.width / img.naturalWidth;
         const scaleY = imgRect.height / img.naturalHeight;
 
-        const markerX = (x * scaleX) + imgRect.left - containerRect.left;
-        const markerY = (y * scaleY) + imgRect.top - containerRect.top;
+        const markerX = imgRect.left + (x * scaleX) - containerRect.left;
+        const markerY = imgRect.top + (y * scaleY) - containerRect.top;
 
+        // 이미지 URL
         const imageUrlUp = '{% static "marker/line3_up_90_default.png" %}';
         const imageUrlDown = '{% static "marker/line3_down_270_default.png" %}';
         const imageUrlDefaultUp = '{% static "marker/line3_down_180_default.png" %}';
@@ -154,78 +138,43 @@
 
         trainMarker.style.left = `${markerX}px`;
         trainMarker.style.top = `${markerY}px`;
-        trainMarker.style.transform = `translate(-50%, -50%)`;
+        trainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
 
+        console.log(`Station: ${station}, Direction: ${direction}`);
+
+        // // 역 범위에 따라 마커 이미지를 변경합니다.
         if (direction === 'up') {
-            trainMarker.style.background = `url('${imageUrlDefaultUp}') no-repeat center center`;
+            if (isInStationRange(station, "상행_남부터미널", "상행_독립문")) {
+                trainMarker.style.background = `url('${imageUrlUp}') no-repeat center center`;
+                // console.log('상행 기차 마커 이미지가 imageUrlUp로 변경되었습니다.');
+            } else {
+                trainMarker.style.background = `url('${imageUrlDefaultUp}') no-repeat center center`;
+                // console.log('상행 기차 마커 이미지가 imageUrlDefaultUp로 변경되었습니다.');
+            }
         } else if (direction === 'down') {
-            trainMarker.style.background = `url('${imageUrlDefaultDown}') no-repeat center center`;
+            if (isInStationRange(station, "하행_독립문", "하행_남부터미널")) {
+                trainMarker.style.background = `url('${imageUrlDown}') no-repeat center center`;
+                // console.log('하행 기차 마커 이미지가 imageUrlDown로 변경되었습니다.');
+            } else {
+                trainMarker.style.background = `url('${imageUrlDefaultDown}') no-repeat center center`;
+                // console.log('하행 기차 마커 이미지가 imageUrlDefaultDown로 변경되었습니다.');
+            }
         }
 
         trainMarker.style.backgroundSize = 'contain';
-        trainMarker.style.display = 'block'; // 위치가 계산된 후에 표시
     }
 
-    function updateTrainPositionWithRealData(data) {
-        data.forEach(train => {
-            const direction = train.상하행구분 === 0 ? 'up' : 'down';
-            const station = direction === 'up' ? `상행_${train.지하철역명}` : `하행_${train.지하철역명}`;
-            const location = stationMap[station];
+    // 기차 위치를 업데이트하는 함수
+    function updateTrainPosition() {
+        // 상행 기차 마커 업데이트
+        const upCurrentLocation = upTrainLocations[upCurrentIndex];
+        updateMarkerPositionWithCoords('up-train-marker', upCurrentLocation.x, upCurrentLocation.y, upCurrentLocation.station, 'up');
+        upCurrentIndex = (upCurrentIndex + 1) % upTrainLocations.length;
 
-            if (location) {
-                if (direction === 'up') {
-                    let existingTrain = upTrainMarkers.find(t => t.trainID === train.열차ID);
-                    if (!existingTrain) {
-                        existingTrain = addTrain('up', upTrainLocations, train.열차ID);
-                    }
-                    updateMarkerPositionWithCoords(existingTrain.marker, location.x, location.y, direction);
-                    existingTrain.currentIndex = upTrainLocations.findIndex(loc => loc.station === station);
-                } else {
-                    let existingTrain = downTrainMarkers.find(t => t.trainID === train.열차ID);
-                    if (!existingTrain) {
-                        existingTrain = addTrain('down', downTrainLocations, train.열차ID);
-                    }
-                    updateMarkerPositionWithCoords(existingTrain.marker, location.x, location.y, direction);
-                    existingTrain.currentIndex = downTrainLocations.findIndex(loc => loc.station === station);
-                }
-            }
-        });
+        // 하행 기차 마커 업데이트
+        const downCurrentLocation = downTrainLocations[downCurrentIndex];
+        updateMarkerPositionWithCoords('down-train-marker', downCurrentLocation.x, downCurrentLocation.y, downCurrentLocation.station, 'down');
+        downCurrentIndex = (downCurrentIndex + 1) % downTrainLocations.length;
     }
-
-    function addTrain(direction, locations, trainID) {
-        const trainId = `${direction}-train-${trainID}`;
-        const marker = createTrainMarker(trainId, direction);
-        const train = {
-            marker: marker,
-            currentIndex: 0,
-            trainID: trainID
-        };
-        if (direction === 'up') {
-            upTrainMarkers.push(train);
-        } else {
-            downTrainMarkers.push(train);
-        }
-        return train;
-    }
-
-    // WebSocket 연결 설정
-    const socket = new WebSocket('ws://' + window.location.host + '/ws/train-location/');
-
-    socket.onopen = function(e) {
-        console.log("WebSocket connection opened.");
-    };
-
-    socket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        updateTrainPositionWithRealData(data);
-    };
-
-    socket.onclose = function(e) {
-        console.log("WebSocket connection closed.");
-    };
-
-    socket.onerror = function(e) {
-        console.error("WebSocket error: ", e);
-    };
 </script>
 {% endblock %}

@@ -38,11 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'subway.apps.SubwayConfig',
-    'rest_framework',
-    'channels',
 ]
 
-ASGI_APPLICATION = 'mini3.asgi.application'
+# ASGI_APPLICATION = 'mini3.asgi.application'
 
 CHANNEL_LAYERS = {
     "default": {
