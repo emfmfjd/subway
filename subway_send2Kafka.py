@@ -100,4 +100,4 @@ produce_to_topic_task = PythonOperator(
     dag=dag,
 )
 
-get_info_position_task >> processing_data_task >> produce_to_topic_task'
+get_info_position_task >> processing_data_task >> produce_to_topic_task
