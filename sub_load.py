@@ -10,14 +10,10 @@ from datetime import datetime, timedelta
 import pendulum
 import os
 import pandas as pd
-import requests
-from bs4 import BeautifulSoup
 import csv
-import os
 import subprocess
 import pyarrow as pa
 import pyarrow.fs as fs
-import lxml
 from hdfs import InsecureClient
 
 kst = pendulum.timezone("Asia/Seoul")
