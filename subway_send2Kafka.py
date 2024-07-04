@@ -18,10 +18,17 @@ dag = DAG(
 )
 
 def get_info_position():
+    arrive = pd.DataFrame()
     url = 'http://swopenapi.seoul.go.kr/api/subway/7874454f7a637733313033434a626b61/json/realtimePosition/0/1000/3호선'
     r = requests.get(url).json()
     data = pd.json_normalize(r, record_path=['realtimePositionList'])
-    return data
+    filtered_data = {key: r['errorMessage'][key] for key in ['status', 'code', 'message']}
+    mes = pd.DataFrame([filtered_data])
+    sample = data[['subwayNm', 'statnNm', 'statnTnm', 'trainSttus', 'updnLine']]
+    for col in mes.columns:
+        sample[col] = mes[col].iloc[0]
+    arrive = pd.concat([arrive, sample], ignore_index=True)
+    return arrive
 
 def processing_data():
     position = get_info_position()
@@ -93,4 +100,4 @@ produce_to_topic_task = PythonOperator(
     dag=dag,
 )
 
-get_info_position_task >> processing_data_task >> produce_to_topic_task
+get_info_position_task >> processing_data_task >> produce_to_topic_task'
