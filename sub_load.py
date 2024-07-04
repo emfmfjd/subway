@@ -69,8 +69,6 @@ def processing_data():
         '1' : '하행/외선'
     }
     
-    for i,k in sub_Nm.items():
-        position['subwayId'] = position['subwayId'].astype(str).apply(lambda x : x.replace(i,k))
     for j,n in updnLine_Nm.items():
         position['updnLine'] = position['updnLine'].astype(str).apply(lambda x : x.replace(j,n))
     for z,c in train_stat():
