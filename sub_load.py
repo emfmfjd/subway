@@ -15,10 +15,10 @@ from bs4 import BeautifulSoup
 import csv
 import os
 import subprocess
-from pyarrow import fs
 import pyarrow as pa
-import subprocess
+import pyarrow.fs as fs
 import lxml
+from hdfs import InsecureClient
 
 kst = pendulum.timezone("Asia/Seoul")
 
@@ -49,12 +49,12 @@ def get_info_realtime():
 def get_info_position():
     arrive = pd.DataFrame()
     for i in range(1, 10):
-        url = f'http://swopenapi.seoul.go.kr/api/subway/704b6f4e49637733383858726f5363/json/realtimePosition/0/1000/{i}호선'
+        url = f'http://swopenapi.seoul.go.kr/api/subway/7874454f7a637733313033434a626b61/json/realtimePosition/0/1000/{i}호선'
         r = requests.get(url).json()
         data = pd.json_normalize(r, record_path=['realtimePositionList'])
         filtered_data = {key: r['errorMessage'][key] for key in ['status', 'code', 'message']}
         mes = pd.DataFrame([filtered_data])
-        sample = data[['subwayId', 'statnId', 'statnNm']]
+        sample = data[['subwayId', 'statnId', 'statnNm','updnLine']]
         sample['subwayId'] = sample['subwayId'].astype(int)
         sample = sample[(sample['subwayId'] > 1000) & (sample['subwayId'] < 1009)].sort_values(by='subwayId', ascending=True)
         for col in mes.columns:
@@ -85,14 +85,31 @@ def merge_send2kafka():
     '4' : '전역진입',
     '5' : '전역도착',
     '99' : '운행중'}
+    
+    updnLine_Nm = {
+        '0' : '상행/내선',
+        '1' : '하행/외선'
+    }
+    
     for i,k in sub_Nm.items():
         merged_df['subwayId'] = merged_df['subwayId'].astype(str).apply(lambda x : x.replace(i,k))
     for l,m in arr_cd.items():
         merged_df['arvlCd'] = merged_df['arvlCd'].astype(str).apply(lambda x : x.replace(l,m))
+    for j,n in updnLine_Nm.items():
+        merged_df['updnLine'] = merged_df['updnLine'].astype(str).apply(lambda x : x.replace(j,n))
+        
     return merged_df.to_csv('/home/hadoop/workspace/realtime_subway.csv', index = False, encoding = 'utf-8-sig')
 
+def save2Hadoop():
+    classpath = subprocess.Popen(["/home/hadoop/hadoop/bin/hdfs", "classpath", "--glob"], stdout=subprocess.PIPE).communicate()[0]
+    os.environ["CLASSPATH"] = classpath.decode("utf-8")
+    hdfs = fs.HadoopFileSystem(host='192.168.0.160', port=8020, user='hadoop')
+    df = pd.read_csv('/home/hadoop/workspace/realtime_subway.csv', encoding='utf-8-sig')
+    hdfs_path = '/subway_project/subway_data.csv'
+    with hdfs.open_output_stream(hdfs_path) as f:
+        df.to_csv(f, index=False)
 
-
+ 
 first_load = PythonOperator(task_id='first_load',
                 python_callable= get_info_realtime,
                 dag=dag
@@ -106,5 +123,8 @@ merge_data = PythonOperator(task_id = 'merge_data',
                              python_callable = merge_send2kafka,
                              dag = dag)
 
+send_data = PythonOperator(task_id = 'send_data',
+                             python_callable = save2Hadoop,
+                             dag = dag)
 
-first_load >> second_load >> merge_data
+first_load >> second_load >> merge_data >> send_data
