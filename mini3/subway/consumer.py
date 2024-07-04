@@ -5,6 +5,9 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from kafka import KafkaConsumer
 import asyncio
+from .models import TrainData
+from datetime import datetime
+from channels.db import database_sync_to_async
 
 class TrainLocationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -32,4 +35,17 @@ class TrainLocationConsumer(AsyncWebsocketConsumer):
         # Kafka 메시지를 수신하고 WebSocket을 통해 클라이언트로 전송
         for message in self.consumer:
             data = message.value
+            # 데이터베이스에 저장
+            await self.save_to_db(data)
+            # 클라이언트로 전송
             await self.send(json.dumps(data))
+
+    async def save_to_db(self, data):
+        await database_sync_to_async(TrainData.objects.create)(
+            line=data['line'],
+            station=data['station'],
+            destination=data['destination'],
+            status=data['status'],
+            direction=data['direction'],
+            arrival_time=datetime.now()  # 현재 시간을 도착 시간으로 저장
+        )

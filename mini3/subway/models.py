@@ -1,11 +1,12 @@
 from django.db import models
 
-# Create your models here.
-
 class TrainData(models.Model):
-    train_id = models.CharField(max_length=100)
-    location = models.CharField(max_length=100)
-    arrival_time = models.DateTimeField()
+    line = models.CharField(max_length=100)  # 호선
+    station = models.CharField(max_length=100)  # 역명
+    destination = models.CharField(max_length=100)  # 종착역
+    status = models.CharField(max_length=100)  # 열차 상태구분
+    direction = models.CharField(max_length=10)  # 상하행구분
+    arrival_time = models.DateTimeField()  # 데이터 저장 시간
 
     def __str__(self):
-        return self.train_id
+        return f"{self.line} - {self.station} - {self.status}"

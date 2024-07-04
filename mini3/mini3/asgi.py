@@ -14,6 +14,8 @@ https://docs.djangoproject.com/en/5.0/howto/deployment/asgi/
 # websocket_urlpatterns를 사용하여 WebSocket 요청을 TrainLocationConsumer로 라우팅
 
 
+# asgi.py
+
 import os
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
@@ -21,8 +23,6 @@ from channels.auth import AuthMiddlewareStack
 from subway.routing import websocket_urlpatterns
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mini3.settings')
-
-# application = get_asgi_application()
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
