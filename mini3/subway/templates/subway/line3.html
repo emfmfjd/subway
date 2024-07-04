@@ -118,6 +118,28 @@
         { x: 2892, y: 1718, station: "하행_경찰병원" },
         { x: 2975, y: 1665, station: "하행_오금" }
     ];
+    function setUpTrainMarkers() {
+        const container = document.getElementById('image-container');
+        for (let i = 0; i < up_trains.length; i++) {
+            const location = upTrainLocations.find(item => item.station === up_trains[i]); 
+            const marker = document.createElement("up-train-marker");
+            marker.id = `up-train-marker-${i}`;
+            marker.setAttribute('data-station', location.station); // 역 이름을 데이터 속성으로 설정
+            container.appendChild(marker);
+        }
+    }
+    // 하행 기차 마커 개수 설정 함수
+    function setDownTrainMarkers() {
+        const container = document.getElementById('image-container');
+        for (let i = 0; i < down_trains.length; i++) {
+            const location = downTrainLocations.find(item => item.station === down_trains[i]); 
+            const marker = document.createElement("down-train-marker");
+            marker.id = `down-train-marker-${i}`;
+            marker.setAttribute('data-station', location.station); // 역 이름을 데이터 속성으로 설정
+            container.appendChild(marker);
+        }
+    }
+
 </script>
 {% endblock %}
 {% block bet-script %}
@@ -171,14 +193,17 @@
     // 기차 위치를 업데이트하는 함수
     function updateTrainPosition() {
         // 상행 기차 마커 업데이트
-        const upCurrentLocation = upTrainLocations[upCurrentIndex];
-        updateMarkerPositionWithCoords('up-train-marker', upCurrentLocation.x, upCurrentLocation.y, upCurrentLocation.station, 'up');
-        upCurrentIndex = (upCurrentIndex + 1) % upTrainLocations.length; //기차가 배열의 마지막 위치에 도달하면 다시 처음으로 돌아가도록 하는 순환 구조
-
+        for (let i = 0; i < up_trains.length; i++) {
+            const upCurrentLocation = upTrainLocations[upCurrentIndex];
+            updateMarkerPositionWithCoords('up-train-marker-${i}', upCurrentLocation.x, upCurrentLocation.y, upCurrentLocation.station, 'up');
+            // upCurrentIndex = (upCurrentIndex + 1) % upTrainLocations.length; //기차가 배열의 마지막 위치에 도달하면 다시 처음으로 돌아가도록 하는 순환 구조
+        }
         // 하행 기차 마커 업데이트
-        const downCurrentLocation = downTrainLocations[downCurrentIndex];
-        updateMarkerPositionWithCoords('down-train-marker', downCurrentLocation.x, downCurrentLocation.y, downCurrentLocation.station, 'down');
-        downCurrentIndex = (downCurrentIndex + 1) % downTrainLocations.length;
+        for (let i = 0; i < down_trains.length; i++) {
+            const downCurrentLocation = downTrainLocations[downCurrentIndex];
+            updateMarkerPositionWithCoords('down-train-marker-${i}', downCurrentLocation.x, downCurrentLocation.y, downCurrentLocation.station, 'down');
+            // downCurrentIndex = (downCurrentIndex + 1) % downTrainLocations.length;
+        }
     }
 </script>
 {% endblock %}
