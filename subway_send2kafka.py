@@ -57,6 +57,7 @@ def processing_data():
     # 데이터 전처리
     position['updnLine'] = position['updnLine'].astype(str).replace(updnLine_Nm)
     position['trainSttus'] = position['trainSttus'].astype(str).replace(train_stat)
+    position['subwayId'] = position['subwayId'].astype(str).replace(sub_Nm)
     
     # JSON 파일로 저장
     position.to_json('/home/hadoop/workspace/realtime_position.json', force_ascii=False, orient='records')
