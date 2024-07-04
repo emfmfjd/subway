@@ -15,6 +15,13 @@ import subprocess
 import pyarrow as pa
 import pyarrow.fs as fs
 from hdfs import InsecureClient
+from confluent_kafka import Producer
+from airflow.providers.apache.kafka.operators.produce_to_topic
+import ProduceToTopicOperator
+from airflow import DAG
+from airflow_provider_kafka.operators.consume_from_topic import ConsumeFromTopicOperator
+from airflow_provider_kafka.operators.produce_to_topic import ProduceToTopicOperator
+
 
 kst = pendulum.timezone("Asia/Seoul")
 
@@ -69,8 +76,38 @@ def processing_data():
         position['updnLine'] = position['updnLine'].astype(str).apply(lambda x : x.replace(j,n))
     for z,c in train_stat.items():
         position['trainSttus'] = position['trainSttus'].astype(str).apply(lambda x : x.replace(z,c))
-        
-    return position.to_csv('/home/hadoop/workspace/realtime_subway.csv', index = False, encoding = 'utf-8-sig')
+    #return position.to_csv('/home/hadoop/workspace/realtime_subway.csv', index = False, encoding = 'utf-8-sig')
+    with open('/home/hadoop/workspace/realtime_position.json', 'w', encoding='utf-8') as f:
+        position.to_json(f, force_ascii=False, orient='records')
+    with open('./home/hadoop/workspace/realtime_position.json', 'r') as f:
+        data = json.load(f)
+
+###########################################################################################################################
+# def kafka_producer_function():
+#     conf = {
+#         'bootstrap.servers': '192.168.0.209:9092,192.168.0.211:9092,192.168.0.208:9092',
+#         'client.id': 'airflowproducer',
+#     }
+    
+#     producer = Producer(conf)
+    
+#     data = {
+#         'str' : 'hello world'
+#     }
+    
+#     message = json.dumps(data)
+    
+#     topic = 'subway'
+    
+#     def delivery_report(err, msg):
+#         if err is not None:
+#             print(f"Message delivery failed: {err}")
+#         else:
+#             print(f"Message delivered to {msg.topic()} [{msg.partition()}]")
+    
+#     producer.produce(topic, message.encode('utf-8'), callback=delivery_report)
+    
+#     producer.flush()
 
 # def save2Hadoop():
 #     classpath = subprocess.Popen(["/home/hadoop/hadoop/bin/hdfs", "classpath", "--glob"], stdout=subprocess.PIPE).communicate()[0]
