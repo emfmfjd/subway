@@ -173,7 +173,7 @@
         // 상행 기차 마커 업데이트
         const upCurrentLocation = upTrainLocations[upCurrentIndex];
         updateMarkerPositionWithCoords('up-train-marker', upCurrentLocation.x, upCurrentLocation.y, upCurrentLocation.station, 'up');
-        upCurrentIndex = (upCurrentIndex + 1) % upTrainLocations.length;
+        upCurrentIndex = (upCurrentIndex + 1) % upTrainLocations.length; //기차가 배열의 마지막 위치에 도달하면 다시 처음으로 돌아가도록 하는 순환 구조
 
         // 하행 기차 마커 업데이트
         const downCurrentLocation = downTrainLocations[downCurrentIndex];
