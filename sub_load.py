@@ -71,7 +71,7 @@ def processing_data():
     
     for j,n in updnLine_Nm.items():
         position['updnLine'] = position['updnLine'].astype(str).apply(lambda x : x.replace(j,n))
-    for z,c in train_stat():
+    for z,c in train_stat.items():
         position['trainSttus'] = position['trainSttus'].astype(str).apply(lambda x : x.replace(z,c))
         
     return position.to_csv('/home/hadoop/workspace/realtime_subway.csv', index = False, encoding = 'utf-8-sig')
