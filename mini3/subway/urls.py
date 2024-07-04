@@ -1,8 +1,5 @@
 from django.urls import path
-
 from . import views
-from .views import train_data
-
 
 app_name = 'subway'
 
@@ -15,5 +12,4 @@ urlpatterns = [
     path('6호선/', views.line6, name='6호선'),
     path('7호선/', views.line7, name='7호선'),
     path('8호선/', views.line8, name='8호선'),
-    path('api/train-data/', train_data, name='train_data'),
 ]
