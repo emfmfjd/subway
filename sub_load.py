@@ -16,7 +16,7 @@ import pyarrow as pa
 import pyarrow.fs as fs
 from hdfs import InsecureClient
 from confluent_kafka import Producer
-from airflow.providers.apache.kafka.operators.produce_to_topic
+from airflow.providers.apache.kafka.operators.produce_to_topic import ProduceToTopicOperator
 import ProduceToTopicOperator
 from airflow import DAG
 from airflow_provider_kafka.operators.consume_from_topic import ConsumeFromTopicOperator
@@ -31,6 +31,15 @@ dag = DAG(
     start_date=datetime(2024, 7,1, tzinfo=kst),
     schedule_interval="*/5 0 * * *",
     catchup=False,
+)
+
+dag2 = DAG(
+        produce_to_topic_task = ProduceToTopicOperator(
+        kafka_config_id="airflow",
+        task_id="producer",
+        topic="subway",
+        producer_function="kafka_producer_function",
+    )
 )
 
 
