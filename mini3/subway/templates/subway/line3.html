@@ -3,26 +3,29 @@
 {% block title %}3호선{% endblock %}
 
 {% block content %}
-{% block style %}
-<style>
-    .train-maker {
-        background: url('{% static "marker/line3_down_180_default.png" %}') no-repeat center center;
-    }
-    .train-maker.down{
-        background: url('{% static "marker/line3_up_0_default.png" %}') no-repeat center center;
-    }
-</style>
+    {% block style %}
+    <style>
+        .train-marker {
+            background: url('{% static "marker/line3_down_180_default.png" %}') no-repeat center center;
+            width: 30px; /* 마커의 크기 */
+            height: 30px; /* 마커의 크기 */
+            position: absolute;
+            display: none; /* 초기에는 숨김 */
+        }
+        .train-marker.down {
+            background: url('{% static "marker/line3_up_0_default.png" %}') no-repeat center center;
+        }
+    </style>
+    {% endblock %}
+
+    <div class="image-container" id="image-container" style="position: relative;">
+        <img class="map-image" src="{% static 'subway/lines/line3.png' %}" id="map-image">
+    </div>
 {% endblock %}
-<div class="image-container" id="image-container">
-    <img class="map-image" src="{% static 'subway/lines/line3.png' %}">
-    <div class="train-marker" id="up-train-marker"></div>
-    <div class="train-marker down" id="down-train-marker"></div>
-</div>
-{% endblock %}
+
 {% block script %}
 <script>
-    // 상행 오금 -> 대화
-    let upTrainLocations = [
+    const upTrainLocations = [
         { x: 2975, y: 1605, station: "상행_오금" },
         { x: 2883, y: 1665, station: "상행_경찰병원" },
         { x: 2821, y: 1715, station: "상행_가락시장" },
@@ -69,8 +72,7 @@
         { x: 201, y: 590, station: "상행_대화" }
     ];
 
-    // 하행 대화 -> 오금
-    let downTrainLocations = [
+    const downTrainLocations = [
         { x: 201, y: 645, station: "하행_대화" },
         { x: 272, y: 645, station: "하행_주엽" },
         { x: 350, y: 645, station: "하행_정발산" },
@@ -116,73 +118,94 @@
         { x: 2892, y: 1718, station: "하행_경찰병원" },
         { x: 2975, y: 1665, station: "하행_오금" }
     ];
-</script>
-{% endblock %}
-{% block bet-script %}
-<script>
-    // 좌표를 사용해 마커 위치를 업데이트하는 함수
-    function updateMarkerPositionWithCoords(markerId, x, y, station, direction) {
-        const trainMarker = document.getElementById(markerId);
+
+
+    // stationMap 객체를 생성해 각 역의 좌표 저장
+    const stationMap = {};
+    upTrainLocations.concat(downTrainLocations).forEach(location => {
+        stationMap[location.station] = location;
+    });
+
+    let upTrainMarkers = [];
+    let downTrainMarkers = [];
+    const maxTrains = 5; // 각 방향에 대한 최대 열차 수
+
+
+    // 새로운 마커 생성
+    function createTrainMarker(id, direction) {
+        const trainMarker = document.createElement('div');
+        trainMarker.className = `train-marker ${direction}`;
+        trainMarker.id = id;
+        document.getElementById('image-container').appendChild(trainMarker);
+        return trainMarker;
+    }
+
+    function updateMarkerPositionWithCoords(marker, x, y, direction) {
+        const trainMarker = marker;
+        const img = document.getElementById('map-image');
         const imgRect = img.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-    
+        const containerRect = document.querySelector('.image-container').getBoundingClientRect();
+
         const scaleX = imgRect.width / img.naturalWidth;
         const scaleY = imgRect.height / img.naturalHeight;
-    
-        const markerX = imgRect.left + (x * scaleX) - containerRect.left;
-        const markerY = imgRect.top + (y * scaleY) - containerRect.top;
-    
-        // 이미지 URL
+
+        const markerX = (x * scaleX) + imgRect.left - containerRect.left;
+        const markerY = (y * scaleY) + imgRect.top - containerRect.top;
+
         const imageUrlUp = '{% static "marker/line3_up_90_default.png" %}';
         const imageUrlDown = '{% static "marker/line3_down_270_default.png" %}';
         const imageUrlDefaultUp = '{% static "marker/line3_down_180_default.png" %}';
         const imageUrlDefaultDown = '{% static "marker/line3_up_0_default.png" %}';
-    
+
         trainMarker.style.left = `${markerX}px`;
         trainMarker.style.top = `${markerY}px`;
-        trainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
-    
-        // console.log(`Station: ${station}, Direction: ${direction}`);
-        // console.log('imgrect_height:', imgRect.height);
-        // console.log('imgrect_width:', imgRect.width);
-        // console.log('imgrect_naturalwidth:', imgRect.naturalWidth);
-        // console.log('imgrect_naturalHeight:', imgRect.naturalHeight);
-        // console.log('containerRect_width:', containerRect.width);
-        // console.log('containerRect_height:', containerRect.height);
-    
-        // // 역 범위에 따라 마커 이미지를 변경합니다.
+        trainMarker.style.transform = `translate(-50%, -50%)`;
+
         if (direction === 'up') {
-            if (isInStationRange(station, "상행_남부터미널", "상행_독립문")) {
-                trainMarker.style.background = `url('${imageUrlUp}') no-repeat center center`;
-                // console.log('상행 기차 마커 이미지가 imageUrlUp로 변경되었습니다.');
-            } else {
-                trainMarker.style.background = `url('${imageUrlDefaultUp}') no-repeat center center`;
-                // console.log('상행 기차 마커 이미지가 imageUrlDefaultUp로 변경되었습니다.');
-            }
+            trainMarker.style.background = `url('${imageUrlDefaultUp}') no-repeat center center`;
         } else if (direction === 'down') {
-            if (isInStationRange(station, "하행_독립문", "하행_남부터미널")) {
-                trainMarker.style.background = `url('${imageUrlDown}') no-repeat center center`;
-                // console.log('하행 기차 마커 이미지가 imageUrlDown로 변경되었습니다.');
-            } else {
-                trainMarker.style.background = `url('${imageUrlDefaultDown}') no-repeat center center`;
-                // console.log('하행 기차 마커 이미지가 imageUrlDefaultDown로 변경되었습니다.');
-            }
+            trainMarker.style.background = `url('${imageUrlDefaultDown}') no-repeat center center`;
         }
-    
+
         trainMarker.style.backgroundSize = 'contain';
+        trainMarker.style.display = 'block'; // 위치가 계산된 후에 표시
     }
 
-    // 기차 위치를 업데이트하는 함수
-    function updateTrainPosition() {
-        // 상행 기차 마커 업데이트
-        const upCurrentLocation = upTrainLocations[upCurrentIndex];
-        updateMarkerPositionWithCoords('up-train-marker', upCurrentLocation.x, upCurrentLocation.y, upCurrentLocation.station, 'up');
-        upCurrentIndex = (upCurrentIndex + 1) % upTrainLocations.length;
-    
-        // 하행 기차 마커 업데이트
-        const downCurrentLocation = downTrainLocations[downCurrentIndex];
-        updateMarkerPositionWithCoords('down-train-marker', downCurrentLocation.x, downCurrentLocation.y, downCurrentLocation.station, 'down');
-        downCurrentIndex = (downCurrentIndex + 1) % downTrainLocations.length;
+    function updateTrainPositions(trains, direction, locations) {
+        trains.forEach((train, index) => {
+            const location = locations[train.currentIndex];
+            updateMarkerPositionWithCoords(train.marker, location.x, location.y, direction);
+            train.currentIndex = (train.currentIndex + 1) % locations.length;
+        });
     }
+
+    function addTrain(direction, locations) {
+        const trainId = `${direction}-train-${Date.now()}`;
+        const marker = createTrainMarker(trainId, direction);
+        const train = {
+            marker: marker,
+            currentIndex: 0
+        };
+        if (direction === 'up') {
+            upTrainMarkers.push(train);
+        } else {
+            downTrainMarkers.push(train);
+        }
+    }
+
+    setInterval(() => {
+        if (upTrainMarkers.length < maxTrains) {
+            addTrain('up', upTrainLocations);
+        }
+        if (downTrainMarkers.length < maxTrains) {
+            addTrain('down', downTrainLocations);
+        }
+    }, 10000); // 10초 간격으로 새로운 열차 추가
+
+    setInterval(() => {
+        updateTrainPositions(upTrainMarkers, 'up', upTrainLocations);
+        updateTrainPositions(downTrainMarkers, 'down', downTrainLocations);
+    }, 1000); // 1초마다 열차 위치 업데이트
+
 </script>
 {% endblock %}
