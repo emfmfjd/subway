@@ -16,11 +16,11 @@ import pyarrow as pa
 import pyarrow.fs as fs
 from hdfs import InsecureClient
 from confluent_kafka import Producer
-# from airflow.providers.apache.kafka.operators.produce_to_topic
-# import ProduceToTopicOperator
+from airflow.providers.apache.kafka.operators.produce_to_topic
+import ProduceToTopicOperator
 from airflow import DAG
-# from airflow_provider_kafka.operators.consume_from_topic import ConsumeFromTopicOperator
-# from airflow_provider_kafka.operators.produce_to_topic import ProduceToTopicOperator
+from airflow_provider_kafka.operators.consume_from_topic import ConsumeFromTopicOperator
+from airflow_provider_kafka.operators.produce_to_topic import ProduceToTopicOperator
 
 
 kst = pendulum.timezone("Asia/Seoul")
