@@ -6,8 +6,16 @@ from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from confluent_kafka import Producer
+import os
+import django
+import sys
 
 kst = pendulum.timezone("Asia/Seoul")
+django_project_path = '/home/hadoop/airflow/dags/subway/mini3'
+sys.path.append(django_project_path)
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mini3.settings')
+django.setup()
+from subway.models import TrainData
 
 dag = DAG(
     dag_id='subway_load_sample',
@@ -57,10 +65,28 @@ def processing_data():
     # 데이터 전처리
     position['updnLine'] = position['updnLine'].astype(str).replace(updnLine_Nm)
     position['trainSttus'] = position['trainSttus'].astype(str).replace(train_stat)
-    position['subwayId'] = position['subwayId'].astype(str).replace(sub_Nm)
     
     # JSON 파일로 저장
     position.to_json('/home/hadoop/workspace/realtime_position.json', force_ascii=False, orient='records')
+    
+    
+def load_json_to_db():
+    import json
+    with open('/home/hadoop/workspace/realtime_position.json', 'r') as f:
+        data = json.load(f)
+    for item in data:
+        TrainData.objects.create(
+            subwayNm=item['subwayNm'],
+            trainNo=item['trainNo'],
+            statnNm=item['statnNm'],
+            statnTnm=item['statnTnm'],
+            trainSttus=item['trainSttus'],
+            updnLine=item['updnLine'],
+            status=item['status'],
+            code=item['code'],
+            message=item['message']
+        )
+
 
 def kafka_producer_function():
     with open('/home/hadoop/workspace/realtime_position.json', 'r') as f:
@@ -95,10 +121,16 @@ processing_data_task = PythonOperator(
     dag=dag,
 )
 
+send2DB = PythonOperator(
+    task_id="send_db",
+    python_callable=load_json_to_db,
+    dag=dag,
+)
+
 produce_to_topic_task = PythonOperator(
     task_id="produce_to_topic",
     python_callable=kafka_producer_function,
     dag=dag,
 )
 
-get_info_position_task >> processing_data_task >> produce_to_topic_task
+get_info_position_task >> processing_data_task >> send2DB >> produce_to_topic_task
