@@ -1,5 +1,4 @@
 from django.shortcuts import render
-
 # Create your views here.
 
 def line1(request):
@@ -28,3 +27,4 @@ def line8(request):
 
 def index(request):
     return render(request, 'subway/line1.html')
+

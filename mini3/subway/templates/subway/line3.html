@@ -1,5 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'base.html'%}
+
 {% load static %}
+
 {% block title %}3호선{% endblock %}
 
 {% block content %}
@@ -21,6 +23,7 @@
 {% endblock %}
 {% block script %}
 <script>
+    // 상행 오금 -> 대화
     let upTrainLocations = [
         { x: 2975, y: 1605, station: "상행_오금" },
         { x: 2883, y: 1665, station: "상행_경찰병원" },
@@ -124,44 +127,44 @@
         const trainMarker = document.getElementById(markerId);
         const imgRect = img.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
-    
+
         const scaleX = imgRect.width / img.naturalWidth;
         const scaleY = imgRect.height / img.naturalHeight;
-    
+
         const markerX = imgRect.left + (x * scaleX) - containerRect.left;
         const markerY = imgRect.top + (y * scaleY) - containerRect.top;
-    
+
         // 이미지 URL
         const imageUrlUp = '{% static "marker/line3_up_90_default.png" %}';
         const imageUrlDown = '{% static "marker/line3_down_270_default.png" %}';
         const imageUrlDefaultUp = '{% static "marker/line3_down_180_default.png" %}';
         const imageUrlDefaultDown = '{% static "marker/line3_up_0_default.png" %}';
-    
+
         trainMarker.style.left = `${markerX}px`;
         trainMarker.style.top = `${markerY}px`;
         trainMarker.style.transform = `translate(-50%, -50%) scale(${scaleX})`;
-    
+
         console.log(`Station: ${station}, Direction: ${direction}`);
-    
+
         // // 역 범위에 따라 마커 이미지를 변경합니다.
         if (direction === 'up') {
             if (isInStationRange(station, "상행_남부터미널", "상행_독립문")) {
                 trainMarker.style.background = `url('${imageUrlUp}') no-repeat center center`;
-                console.log('상행 기차 마커 이미지가 imageUrlUp로 변경되었습니다.');
+                // console.log('상행 기차 마커 이미지가 imageUrlUp로 변경되었습니다.');
             } else {
                 trainMarker.style.background = `url('${imageUrlDefaultUp}') no-repeat center center`;
-                console.log('상행 기차 마커 이미지가 imageUrlDefaultUp로 변경되었습니다.');
+                // console.log('상행 기차 마커 이미지가 imageUrlDefaultUp로 변경되었습니다.');
             }
         } else if (direction === 'down') {
             if (isInStationRange(station, "하행_독립문", "하행_남부터미널")) {
                 trainMarker.style.background = `url('${imageUrlDown}') no-repeat center center`;
-                console.log('하행 기차 마커 이미지가 imageUrlDown로 변경되었습니다.');
+                // console.log('하행 기차 마커 이미지가 imageUrlDown로 변경되었습니다.');
             } else {
                 trainMarker.style.background = `url('${imageUrlDefaultDown}') no-repeat center center`;
-                console.log('하행 기차 마커 이미지가 imageUrlDefaultDown로 변경되었습니다.');
+                // console.log('하행 기차 마커 이미지가 imageUrlDefaultDown로 변경되었습니다.');
             }
         }
-    
+
         trainMarker.style.backgroundSize = 'contain';
     }
 
@@ -170,8 +173,8 @@
         // 상행 기차 마커 업데이트
         const upCurrentLocation = upTrainLocations[upCurrentIndex];
         updateMarkerPositionWithCoords('up-train-marker', upCurrentLocation.x, upCurrentLocation.y, upCurrentLocation.station, 'up');
-        upCurrentIndex = (upCurrentIndex + 1) % upTrainLocations.length;
-    
+        upCurrentIndex = (upCurrentIndex + 1) % upTrainLocations.length; //기차가 배열의 마지막 위치에 도달하면 다시 처음으로 돌아가도록 하는 순환 구조
+
         // 하행 기차 마커 업데이트
         const downCurrentLocation = downTrainLocations[downCurrentIndex];
         updateMarkerPositionWithCoords('down-train-marker', downCurrentLocation.x, downCurrentLocation.y, downCurrentLocation.station, 'down');

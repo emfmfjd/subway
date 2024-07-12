@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('subway/', include('subway.urls')),
     path('', index, name='index'),
+
 ]
