@@ -14,8 +14,8 @@ import fsspec
 kst = pendulum.timezone("Asia/Seoul")
 
 dag = DAG(
-    dag_id='subway_load_8',
-    description="subway_test",
+    dag_id='subway_project',
+    description="save2hadoop",
     start_date=datetime(2024, 7, 5, tzinfo=kst),
     schedule_interval="*/1 09 * * *",
     catchup=False,
