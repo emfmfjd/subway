@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class KafkaConsumer {
-@KafkaListener(topics = "subway", groupId = "subway_con")
+@KafkaListener(topics = "subway_pos", groupId = "subway_con1")
     public void consume(KafkaMsgVO vo){
         System.out.println("SubwayNm = " + vo.getSubwayNm());
         System.out.println("TrainNo = " + vo.getTrainNo());
