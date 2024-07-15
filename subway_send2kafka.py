@@ -6,19 +6,11 @@ from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from confluent_kafka import Producer
-import os
-import django
-import sys
 
 kst = pendulum.timezone("Asia/Seoul")
-django_project_path = '/home/hadoop/airflow/dags/subway/mini3'
-sys.path.append(django_project_path)
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mini3.settings')
-django.setup()
-from subway.models import TrainData
 
 dag = DAG(
-    dag_id='subway_load_sample',
+    dag_id='subway_load_sample_test',
     description="subway_test",
     start_date=datetime(2024, 7, 1, tzinfo=kst),
     schedule_interval="*/5 0 * * *",
@@ -32,7 +24,7 @@ def get_info_position():
     data = pd.json_normalize(r, record_path=['realtimePositionList'])
     filtered_data = {key: r['errorMessage'][key] for key in ['status', 'code', 'message']}
     mes = pd.DataFrame([filtered_data])
-    sample = data[['subwayNm', 'trainNo', 'statnNm', 'statnTnm', 'trainSttus', 'updnLine']]
+    sample = data[['subwayNm', 'statnNm', 'statnTnm', 'trainSttus', 'updnLine']]
     for col in mes.columns:
         sample[col] = mes[col].iloc[0]
     arrive = pd.concat([arrive, sample], ignore_index=True)
@@ -68,25 +60,6 @@ def processing_data():
     
     # JSON 파일로 저장
     position.to_json('/home/hadoop/workspace/realtime_position.json', force_ascii=False, orient='records')
-    
-    
-def load_json_to_db():
-    import json
-    with open('/home/hadoop/workspace/realtime_position.json', 'r') as f:
-        data = json.load(f)
-    for item in data:
-        TrainData.objects.create(
-            subwayNm=item['subwayNm'],
-            trainNo=item['trainNo'],
-            statnNm=item['statnNm'],
-            statnTnm=item['statnTnm'],
-            trainSttus=item['trainSttus'],
-            updnLine=item['updnLine'],
-            status=item['status'],
-            code=item['code'],
-            message=item['message']
-        )
-
 
 def kafka_producer_function():
     with open('/home/hadoop/workspace/realtime_position.json', 'r') as f:
@@ -97,8 +70,17 @@ def kafka_producer_function():
         'client.id': 'airflowproducer',
     }
     producer = Producer(conf)
-    message = json.dumps(subway_json)
-    topic = 'subway'
+    topic = 'subway_pos'
+    
+    def save_report(err, msg):
+        if err is not None:
+            print(f'Message delivery failed: {err}')
+        else:
+            print(f'Message delivered to {msg.topic()} [{msg.partition()}]')
+    
+    for message in subway_json:
+        producer.produce(topic, json.dumps(message).encode('utf-8'), callback=save_report)
+    producer.flush()
     
     def save_report(err, msg):
         if err is not None:
@@ -121,16 +103,10 @@ processing_data_task = PythonOperator(
     dag=dag,
 )
 
-send2DB = PythonOperator(
-    task_id="send_db",
-    python_callable=load_json_to_db,
-    dag=dag,
-)
-
 produce_to_topic_task = PythonOperator(
     task_id="produce_to_topic",
     python_callable=kafka_producer_function,
     dag=dag,
 )
 
-get_info_position_task >> processing_data_task >> send2DB >> produce_to_topic_task
+get_info_position_task >> processing_data_task >> produce_to_topic_task
