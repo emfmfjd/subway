@@ -40,6 +40,15 @@ INSTALLED_APPS = [
     'subway.apps.SubwayConfig',
 ]
 
+# ASGI_APPLICATION = 'mini3.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
