@@ -40,3 +40,5 @@
     try2. 하둡에서 스프링부트로 보내기
     
 - airlfow에서 하둡과 카프카로 병렬처리 구현
+![image](https://github.com/user-attachments/assets/824395aa-58e5-48b4-bee4-624550610d95)
+
