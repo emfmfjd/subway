@@ -24,7 +24,7 @@ def get_info_position():
     data = pd.json_normalize(r, record_path=['realtimePositionList'])
     filtered_data = {key: r['errorMessage'][key] for key in ['status', 'code', 'message']}
     mes = pd.DataFrame([filtered_data])
-    sample = data[['subwayNm', 'statnNm', 'statnTnm', 'trainSttus', 'updnLine']]
+    sample = data[['subwayNm', 'trainNo', 'statnNm', 'statnTnm', 'trainSttus', 'updnLine']]
     for col in mes.columns:
         sample[col] = mes[col].iloc[0]
     arrive = pd.concat([arrive, sample], ignore_index=True)
